@@ -1,0 +1,11 @@
+/tree-sitter/
+/transient/
+/tramp
+/places
+/games/
+/elpa/
+/eln-cache/
+/auto-save-list/
+/.project
+/.org-id-locations
+/.emacs.desktop
