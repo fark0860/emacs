@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org Table Plot
+# key: plottbl
+# --
+#+PLOT: title:"$4" ind:${1:$$(yas-completing-read "Select X-Axis Column: " '("1" "2" "3"))} deps:($5) type:${2:$$(yas-completing-read "Select Plot Type: " '("2d" "3d" "grid"))} with:${3:$$(yas-completing-read "Select Plot Style: " '("lines" "points" "boxes" "histograms" "steps"))}

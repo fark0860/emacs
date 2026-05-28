@@ -1,0 +1,4 @@
+# key: kw
+# name: Org Keywords Selector
+# --
+${1:$$(yas-completing-read "Select Org Keyword: " '("#+TITLE: " "#+AUTHOR: " "#+OPTIONS: " "#+TODO: " "#+STARTUP: " "#+FILETAGS: " "#+LATEX_HEADER: " "#+HTML_HEAD: " "python :results output"))}$0

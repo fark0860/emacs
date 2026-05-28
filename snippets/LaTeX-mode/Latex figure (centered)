@@ -1,0 +1,11 @@
+# -*- mode: snippet -*-
+# name: Latex figure (centered)
+# key: fig
+# --
+\\begin{figure}[h]
+\\centering
+$1
+\\caption{$2}
+\\label{fig:$3}
+\\end{figure}
+$0
