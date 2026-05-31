@@ -92,8 +92,8 @@
   :config
   (evilnc-default-hotkeys))
 
-;; Completion framework setup
-
+;;; Completion framework setup
+;;;; vertico
 (use-package vertico
   :ensure t
   :custom
@@ -102,6 +102,7 @@
   (vertico-mode))
 
 ;; Enable rich annotations using the Marginalia package
+;;;; marginilia
 (use-package marginalia
   :ensure t
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
@@ -118,6 +119,8 @@
   ;; package.
   (marginalia-mode))
 
+;; Fuzzy find results leverages emacs inbuilt fuzzy finder
+;;; oderless 
 (use-package orderless
   :ensure t
   :custom
@@ -125,12 +128,12 @@
   (completion-category-overrides '((file (styles partial-completion)))))
 
 
-;; Save completion history
+;;;; Save completion history
 (use-package savehist
   :init
   (savehist-mode))
 
-;; Recent files setup
+;;;; Recent files setup
 (use-package recentf
   :custom
   (recentf-max-saved-items 200)
@@ -138,9 +141,8 @@
   :init
   (recentf-mode))
 
-
-
 ;; Example configuration for Consult
+;;;; Consult
 (use-package consult
   ;; Replace bindings. Lazily loaded by `use-package'.
   :bind (;; C-c bindings in `mode-specific-map'
@@ -244,75 +246,80 @@
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
   )
 
-
+;;;; Consudlt Directory integration
 (use-package consult-dir
   :ensure t
   :bind (("C-x C-d" . consult-dir)
          :map vertico-map
          ("C-x C-d" . consult-dir)
-             ("C-x C-j" . consult-dir-jump-file)))
+         ("C-x C-j" . consult-dir-jump-file)))
 
-; Core LSP: Eglot (built-in, fast)
-    (use-package eglot
-	  :defer t
-      :custom
-      ;; Performance optimizations
-      (eglot-sync-connect 1)           ; Quick connect then async
-      (eglot-autoshutdown t)           ; Kill idle servers
-      (eglot-ignored-server-capabilities '(:documentHighlightProvider))  ; Skip unused
-      :hook
-      ;; Enable in Tree-sitter modes
-      (((prog-mode text-mode) . eglot-ensure)
-       (python-ts-mode . eglot-ensure)
-       (lua-ts-mode . eglot-ensure)
-       (js-ts-mode . eglot-ensure)
-       (typescript-ts-mode . eglot-ensure)
-       (julia-ts-mode . eglot-ensure)
-       (rust-ts-mode . eglot-ensure))) 
-
-
-
-    ;; Fast completion: Corfu
-    (use-package corfu
-      :ensure t
-      :custom
-      (corfu-auto t)                   ; Auto popup
-      (corfu-cycle t)                  ; Cycle candidates
-      (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
-      (corfu-quit-no-match t)          ; Quit if no match
-      :config
-      (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
-      (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
-      (global-corfu-mode)
-      (corfu-popupinfo-mode)
-  	(corfu-history-mode)
-  	(evil-collection-corfu-setup))
-
-    (use-package yasnippet
-      :ensure t
-      :config
-      (yas-global-mode 1))  ;; Enable Yasnippet globally
-
-    (use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
-      :ensure t)
-
-    (use-package yasnippet-capf
-      :ensure t
-      :after (yasnippet cape))
+;;; LSP and Completion
+;;;; Core LSP: Eglot (built-in, fast)
+(use-package eglot
+  :defer t
+  :custom
+  ;; Performance optimizations
+  (eglot-sync-connect 1)           ; Quick connect then async
+  (eglot-autoshutdown t)           ; Kill idle servers
+  (eglot-ignored-server-capabilities '(:documentHighlightProvider))  ; Skip unused
+  :hook
+  ;; Enable in Tree-sitter modes
+  (((prog-mode text-mode) . eglot-ensure)
+   (python-ts-mode . eglot-ensure)
+   (lua-ts-mode . eglot-ensure)
+   (js-ts-mode . eglot-ensure)
+   (typescript-ts-mode . eglot-ensure)
+   (julia-ts-mode . eglot-ensure)
+   (rust-ts-mode . eglot-ensure))) 
 
 
-    (use-package cape
-      :ensure t
-      :init
-      ;; Add general Cape completions
-      (add-hook 'completion-at-point-functions #'cape-file)
-      (add-hook 'completion-at-point-functions #'cape-dabbrev)
-      (add-hook 'completion-at-point-functions #'cape-elisp-block)
-      (add-hook 'completion-at-point-functions #'cape-history)
-    )
+
+;;;; popup completion: Corfu
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-auto t)                   ; Auto popup
+  (corfu-cycle t)                  ; Cycle candidates
+  (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
+  (corfu-quit-no-match t)          ; Quit if no match
+  :config
+  (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
+  (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  (corfu-history-mode)
+  (evil-collection-corfu-setup))
 
 
-  (defun my/eglot-capf ()
+;;; Snippets
+;;;; Yasnippet
+(use-package yasnippet
+  :ensure t
+  :config
+  (yas-global-mode 1))  ;; Enable Yasnippet globally
+
+;;;; Yasnippets Collection
+(use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
+  :ensure t)
+
+(use-package yasnippet-capf
+  :ensure t
+  :after (yasnippet cape))
+
+;;;; cape capfs
+(use-package cape
+  :ensure t
+  :init
+  ;; Add general Cape completions
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  )
+
+
+(defun my/eglot-capf ()
   (when (eglot-managed-p)
     (eglot-completion-at-point)))
 
@@ -327,16 +334,77 @@
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
 
+;; ;; Add your local lisp directory to the Emacs load path
+;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
+
+;; ;; Load your custom plugin
+;; require 'my-insert-colors)
+
+;; Color Inserter Setup
+  (use-package my-insert-colors
+    :load-path "lisp/"
+    :commands insert-color)
+
+  ;; WordNet Setup for Prose Modes
+  (use-package my-wordnet
+    :load-path "lisp/"
+    ;; Declaring :commands creates manual autoloads to defer loading
+    :commands (wordnet-overview 
+               wordnet-full)
+    ;; Tie the keybindings to specific major modes via a local hook
+    :hook ((text-mode-hook 
+            org-mode-hook 
+            markdown-mode-hook 
+            latex-mode-hook) . (lambda ()
+                                 (local-set-key (kbd "C-c w o") 'wordnet-overview))))
+
+;; ;;; Wordnet Dictionary Integration
+;; (defun my-wordnet-lookup (word flags)
+;;   "Helper function to run the local 'wn' command, display output, and shift focus."
+;;   (let ((buf (get-buffer-create "*WordNet*"))
+;;         (cmd (format "wn %s %s" word flags)))
+;;     (with-current-buffer buf
+;;       (read-only-mode -1)
+;;       (erase-buffer)
+;;       (insert (format "WordNet Query: %s\n\n" cmd))
+;;       (insert (shell-command-to-string cmd))
+;;       (goto-char (point-min))
+;;       (ansi-color-apply-on-region (point-min) (point-max))
+;;       (view-mode 1))
+;;     (pop-to-buffer buf)))
+
+;; (defun wordnet-overview (word)
+;;   "Show all senses and definitions for a word (-over)."
+;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
+;;   (my-wordnet-lookup word "-over"))
+
+;; (defun wordnet-synonyms-noun (word)
+;;   "List synonyms for a noun (-synsn)."
+;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
+;;   (my-wordnet-lookup word "-synsn"))
+
+;; (defun wordnet-antonyms (word)
+;;   "Show opposites for a word (-antsn)."
+;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
+;;   (my-wordnet-lookup word "-antsn"))
+
+;; (defun wordnet-hypernyms (word)
+;;   "Show more general concepts (-hypen)."
+;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
+;;   (my-wordnet-lookup word "-hypen"))
+
 (setq dired-listing-switches "-Al --group-directories-first -v") ;; Set default dired view
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
 
+;;; documantation eldoc 
 (use-package eldoc
-    :defer t
-    :custom
-    (eldoc-idle-delay 0.1)  ; delay before popup
-    (eldoc-message-function #'ignore)        ; don't print in echo area
-    (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)) ; don't collect info
+  :defer t
+  :custom
+  (eldoc-idle-delay 0.1)  ; delay before popup
+  (eldoc-message-function #'ignore)        ; don't print in echo area
+  (eldoc-documentation-strategy #'eldoc-documentation-compose-eagerly)) ; don't collect info
 
+;;;; eldoc box
 (use-package eldoc-box
   :ensure t
   :defer t
@@ -344,24 +412,25 @@
   ;; enable markdown rendering for eglot hovers
   (setq eldoc-box-hover-render-function #'eldoc-box-hover-markdown))
 
-  ;; Eldoc backend that shows full docs for any elisp symbol
-  (defun my/elisp-docs (callback &rest _)
-    "Show full Elisp documentation in Eldoc / Eldoc-box for the symbol at point."
-    (when-let ((sym (symbol-at-point))
-               (buf (elisp--company-doc-buffer (symbol-name sym))))
-      (funcall callback
-               (with-current-buffer buf (buffer-string))
-               '(:thing ,(format "%s" sym)))))
+;; Eldoc backend that shows full docs for any elisp symbol
+(defun my/elisp-docs (callback &rest _)
+  "Show full Elisp documentation in Eldoc / Eldoc-box for the symbol at point."
+  (when-let ((sym (symbol-at-point))
+             (buf (elisp--company-doc-buffer (symbol-name sym))))
+    (funcall callback
+             (with-current-buffer buf (buffer-string))
+             '(:thing ,(format "%s" sym)))))
 
-  ;; Add it to eldoc functions in emacs-lisp-mode and lisp-interaction-mode
-  (add-hook 'emacs-lisp-mode-hook
-            (lambda ()
-              (add-hook 'eldoc-documentation-functions #'my/elisp-docs nil t)))
+;; Add it to eldoc functions in emacs-lisp-mode and lisp-interaction-mode
+(add-hook 'emacs-lisp-mode-hook
+          (lambda ()
+            (add-hook 'eldoc-documentation-functions #'my/elisp-docs nil t)))
 
-  (add-hook 'lisp-interaction-mode-hook
-            (lambda ()
-              (add-hook 'eldoc-documentation-functions #'my/elisp-docs nil t)))
+(add-hook 'lisp-interaction-mode-hook
+          (lambda ()
+            (add-hook 'eldoc-documentation-functions #'my/elisp-docs nil t)))
 
+;;; Embark
 (use-package embark
   :defer t
   :ensure t
@@ -403,39 +472,59 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+;;; Flash
+(use-package flash
+  :commands (flash-jump flash-jump-continue
+						flash-treesitter)
+  :bind ("s-j" . flash-jump)
+  :custom
+  (flash-multi-window t)
+  (flash-char-jump-labels t)
+  :init
+  ;; Evil integration (simple setup)
+  (with-eval-after-load 'evil
+    (require 'flash-evil)
+    (flash-evil-setup t))  ; t = also set up f/t/F/T char motions
+  ;; (setq flash-char-jump-labels t)
+  :config
+  ;; Search integration (labels during C-s, /, ?)
+  (require 'flash-isearch)
+  (flash-isearch-mode 1))
+
 ;; Enable folding in programming modes
 (add-hook 'prog-mode-hook #'hs-minor-mode)
 ;; Enable outline folding in Org and text modes
 (add-hook 'org-mode-hook #'outline-minor-mode)
 (add-hook 'text-mode-hook #'outline-minor-mode)
 
+;;; Programming Languages Setup
 (use-package julia-mode
   :defer t
   :ensure t)
-  
-  (use-package julia-ts-mode
-    :defer t
-    :ensure t
-    :mode "\\.jl$")
 
-  (use-package eglot-jl
-    :ensure t
-	:defer t
-    :after eglot)
+(use-package julia-ts-mode
+  :defer t
+  :ensure t
+  :mode "\\.jl$")
 
-  (use-package julia-repl
-    :ensure t
-    :after julia-ts-mode
-    :commands julia-repl
-    :custom
-    (julia-repl-executable-records '((default "julia")))
-    (julia-repl-switches "--startup-file=no --history-file=yes")
-    :bind
-    (:map julia-ts-mode-map
-          ("C-c C-z" . julia-repl)
-          ("C-c C-c" . julia-repl-send-buffer)
-          ("C-c C-r" . julia-repl-send-region-or-line)
-          ("C-c C-l" . julia-repl-send-line)))
+(use-package eglot-jl
+  :ensure t
+  :defer t
+  :after eglot)
+
+(use-package julia-repl
+  :ensure t
+  :after julia-ts-mode
+  :commands julia-repl
+  :custom
+  (julia-repl-executable-records '((default "julia")))
+  (julia-repl-switches "--startup-file=no --history-file=yes")
+  :bind
+  (:map julia-ts-mode-map
+        ("C-c C-z" . julia-repl)
+        ("C-c C-c" . julia-repl-send-buffer)
+        ("C-c C-r" . julia-repl-send-region-or-line)
+        ("C-c C-l" . julia-repl-send-line)))
 
 ;; FORCE GLOBAL PREVIEW OVERRIDES BEFORE LOADING
 ;;(setq-default TeX-PDF-mode nil)
@@ -444,253 +533,257 @@
 (setq preview-LaTeX-command-replacements '(preview-LaTeX-disable-pdfoutput))
 ;;(setq preview-fast-conversion nil)
 
-  (use-package latex
-    :defer t
-    :ensure auctex
-    :mode ("\\.tex\\'" . LaTeX-mode)
-    :hook ((LaTeX-mode . prettify-symbols-mode))
-    :bind (:map LaTeX-mode-map
-                ("C-S-e" . latex-math-from-calc))
-    :init
-    (setq TeX-auto-save t)
-    (setq TeX-parse-self t)
-    (setq-default TeX-master nil)
-    
-    :config
-    ;; Format math as a Latex string with Calc
-    (defun latex-math-from-calc ()
-      "Evaluate `calc' on the contents of line at point."
-      (interactive)
-      (cond ((region-active-p)
-             (let* ((beg (region-beginning))
-                    (end (region-end))
-                    (string (buffer-substring-no-properties beg end)))
-               (kill-region beg end)
-               (insert (calc-eval `(,string calc-language latex
-                                            calc-prefer-frac t
-                                            calc-angle-mode rad)))))
-            (t (let ((l (thing-at-point 'line)))
-                 (end-of-line 1) (kill-line 0) 
-                 (insert (calc-eval `(,l
-                                      calc-language latex
-                                      calc-prefer-frac t
-                                      calc-angle-mode rad))))))))
-    
+;;;; Latex
+(use-package latex
+  :defer t
+  :ensure auctex
+  :mode ("\\.tex\\'" . LaTeX-mode)
+  :hook ((LaTeX-mode . prettify-symbols-mode))
+  :bind (:map LaTeX-mode-map
+              ("C-S-e" . latex-math-from-calc))
+  :init
+  (setq TeX-auto-save t)
+  (setq TeX-parse-self t)
+  (setq-default TeX-master nil)
+  
+  :config
+  ;; Format math as a Latex string with Calc
+  (defun latex-math-from-calc ()
+    "Evaluate `calc' on the contents of line at point."
+    (interactive)
+    (cond ((region-active-p)
+           (let* ((beg (region-beginning))
+                  (end (region-end))
+                  (string (buffer-substring-no-properties beg end)))
+             (kill-region beg end)
+             (insert (calc-eval `(,string calc-language latex
+                                          calc-prefer-frac t
+                                          calc-angle-mode rad)))))
+          (t (let ((l (thing-at-point 'line)))
+               (end-of-line 1) (kill-line 0) 
+               (insert (calc-eval `(,l
+                                    calc-language latex
+                                    calc-prefer-frac t
+                                    calc-angle-mode rad))))))))
+
 
   ;;; Synctex + Zathura Support
-  (with-eval-after-load 'tex
-    (add-to-list 'TeX-view-program-list
-                 '("Zathura"
-                   ("zathura %o"
-                    (mode-io-correlate
-                     " --synctex-forward %n:0:%b -x \"emacsclient +%{line} %{input}\""))
-                   "zathura"))
-    
-    (setq TeX-view-program-selection
-          '((output-pdf "Zathura")))
-    
-    (setq TeX-source-correlate-mode t)
-    (setq TeX-source-correlate-start-server t))
+(with-eval-after-load 'tex
+  (add-to-list 'TeX-view-program-list
+               '("Zathura"
+                 ("zathura %o"
+                  (mode-io-correlate
+                   " --synctex-forward %n:0:%b -x \"emacsclient +%{line} %{input}\""))
+                 "zathura"))
+  
+  (setq TeX-view-program-selection
+        '((output-pdf "Zathura")))
+  
+  (setq TeX-source-correlate-mode t)
+  (setq TeX-source-correlate-start-server t))
 
 
-    (use-package preview
-    	:ensure nil
-      :defer t
-      :after latex
-      :hook ((LaTeX-mode . preview-larger-previews))
-      :config
-      (defun preview-larger-previews ()
-        (setq preview-scale-function
-              (lambda () (* 0.8
-                            (funcall (preview-scale-from-face)))))))
+(use-package preview
+  :ensure nil
+  :defer t
+  :after latex
+  :hook ((LaTeX-mode . preview-larger-previews))
+  :config
+  (defun preview-larger-previews ()
+    (setq preview-scale-function
+          (lambda () (* 0.8
+                        (funcall (preview-scale-from-face)))))))
 
 
-    (use-package reftex
-      :defer t
-      :after latex
-      :hook (LaTeX-mode . turn-on-reftex)
-      :custom
-      (reftex-plug-into-AUCTeX t))
+(use-package reftex
+  :defer t
+  :after latex
+  :hook (LaTeX-mode . turn-on-reftex)
+  :custom
+  (reftex-plug-into-AUCTeX t))
 
 
-    (use-package aas
-      :ensure t
-      :defer t
-      :hook (LaTeX-mode . aas-activate-for-major-mode)
-      :hook (org-mode . aas-activate-for-major-mode)
-      :config
-      ;; (aas-set-snippets 'text-mode
-      ;;   ;; expand unconditionally
-      ;;   ";o-" "ō"
-      ;;   ";i-" "ī"
-      ;;   ";a-" "ā"
-      ;;   ";u-" "ū"
-      ;;   ";e-" "ē")
-      ;; (aas-set-snippets 'latex-mode
-      ;;   ;; set condition!
-      ;;   :cond #'texmathp ; expand only while in math
-      ;;   "supp" "\\supp"
-      ;;   "On" "O(n)"
-      ;;   "O1" "O(1)"
-      ;;   "Olog" "O(\\log n)"
-      ;;   "Olon" "O(n \\log n)"
-      ;;   ;; Use YAS/Tempel snippets with ease!
-      ;;   "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
-      ;;   "amax" '(tempel "\\argmax_{" p "}") ; Tempel snippet shorthand form
-      ;;   ;; bind to functions!
-      ;;   ";ig" #'insert-register
-      ;;   ";call-sin"
-      ;;   (lambda (angle) ; Get as fancy as you like
-      ;;     (interactive "sAngle: ")
-      ;;     (insert (format "%s" (sin (string-to-number angle))))))
-      ;; disable snippets by redefining them with a nil expansion
-      (aas-set-snippets 'latex-mode
-        "supp" nil))
+(use-package aas
+  :ensure t
+  :defer t
+  :hook (LaTeX-mode . aas-activate-for-major-mode)
+  :hook (org-mode . aas-activate-for-major-mode)
+  :config
+  ;; (aas-set-snippets 'text-mode
+  ;;   ;; expand unconditionally
+  ;;   ";o-" "ō"
+  ;;   ";i-" "ī"
+  ;;   ";a-" "ā"
+  ;;   ";u-" "ū"
+  ;;   ";e-" "ē")
+  ;; (aas-set-snippets 'latex-mode
+  ;;   ;; set condition!
+  ;;   :cond #'texmathp ; expand only while in math
+  ;;   "supp" "\\supp"
+  ;;   "On" "O(n)"
+  ;;   "O1" "O(1)"
+  ;;   "Olog" "O(\\log n)"
+  ;;   "Olon" "O(n \\log n)"
+  ;;   ;; Use YAS/Tempel snippets with ease!
+  ;;   "amin" '(yas "\\argmin_{$1}") ; YASnippet snippet shorthand form
+  ;;   "amax" '(tempel "\\argmax_{" p "}") ; Tempel snippet shorthand form
+  ;;   ;; bind to functions!
+  ;;   ";ig" #'insert-register
+  ;;   ";call-sin"
+  ;;   (lambda (angle) ; Get as fancy as you like
+  ;;     (interactive "sAngle: ")
+  ;;     (insert (format "%s" (sin (string-to-number angle))))))
+  ;; disable snippets by redefining them with a nil expansion
+  (aas-set-snippets 'latex-mode
+    "supp" nil))
 
 
-    (use-package laas
-      :ensure t
-      :defer t
-      :hook (LaTeX-mode . laas-mode)
-      :config ; do whatever here
-      (aas-set-snippets 'laas-mode
-        ;; set condition!
-        :cond #'texmathp ; expand only while in math
-        "supp" "\\supp"
-        "On" "O(n)"
-        "O1" "O(1)"
-        "Olog" "O(\\log n)"
-        "Olon" "O(n \\log n)"
-        ;; bind to functions!
-        "Sum" (lambda () (interactive)
-                (yas-expand-snippet "\\sum_{$1}^{$2} $0"))
-        "Span" (lambda () (interactive)
-                 (yas-expand-snippet "\\Span($1)$0"))
-        ;; add accent snippets
-        :cond #'laas-object-on-left-condition
-        "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))))
+(use-package laas
+  :ensure t
+  :defer t
+  :hook (LaTeX-mode . laas-mode)
+  :config ; do whatever here
+  (aas-set-snippets 'laas-mode
+    ;; set condition!
+    :cond #'texmathp ; expand only while in math
+    "supp" "\\supp"
+    "On" "O(n)"
+    "O1" "O(1)"
+    "Olog" "O(\\log n)"
+    "Olon" "O(n \\log n)"
+    ;; bind to functions!
+    "Sum" (lambda () (interactive)
+            (yas-expand-snippet "\\sum_{$1}^{$2} $0"))
+    "Span" (lambda () (interactive)
+             (yas-expand-snippet "\\Span($1)$0"))
+    ;; add accent snippets
+    :cond #'laas-object-on-left-condition
+    "qq" (lambda () (interactive) (laas-wrap-previous-object "sqrt"))))
 
 
 
-    ;; ORGTBL → LaTeX / AMSMATH integration
+;; ORGTBL → LaTeX / AMSMATH integration
 
-    (add-hook 'LaTeX-mode-hook #'orgtbl-mode)
+(add-hook 'LaTeX-mode-hook #'orgtbl-mode)
 
-    (defun my-orgtbl-to-latex-rows ()
-      "Convert the Org table at point into LaTeX rows (no tabular wrapper)."
-      (let* ((table (org-table-to-lisp)))
-        (mapconcat
-         (lambda (row)
-           (concat (mapconcat #'identity row " & ") " \\\\"))
-         table
-         "\n")))
+(defun my-orgtbl-to-latex-rows ()
+  "Convert the Org table at point into LaTeX rows (no tabular wrapper)."
+  (let* ((table (org-table-to-lisp)))
+    (mapconcat
+     (lambda (row)
+       (concat (mapconcat #'identity row " & ") " \\\\"))
+     table
+     "\n")))
 
-    (defun my-orgtbl-convert-at-point (_arg)
-      "Replace the current Org table with LaTeX rows."
-      (interactive "P")
-      (unless (org-at-table-p)
-        (user-error "Cursor is not inside an Org table"))
-      (let ((beg (org-table-begin))
-            (end (org-table-end)))
-        (let ((latex (my-orgtbl-to-latex-rows)))
-          (delete-region beg end)
-          (goto-char beg)
-          (insert latex "\n"))))
+(defun my-orgtbl-convert-at-point (_arg)
+  "Replace the current Org table with LaTeX rows."
+  (interactive "P")
+  (unless (org-at-table-p)
+    (user-error "Cursor is not inside an Org table"))
+  (let ((beg (org-table-begin))
+        (end (org-table-end)))
+    (let ((latex (my-orgtbl-to-latex-rows)))
+      (delete-region beg end)
+      (goto-char beg)
+      (insert latex "\n"))))
 
-    (with-eval-after-load 'org-table
-      ;; Use orgtbl's built-in dispatch key
-      ;; (define-key orgtbl-mode-map (kbd "C-c C-t ") #'my-orgtbl-convert-at-point)
-      (define-key orgtbl-mode-map (kbd "C-c C-t C-t") #'my-orgtbl-convert-at-point)
-      (define-key orgtbl-mode-map (kbd "C-c C-x") #'org-table-align))
+(with-eval-after-load 'org-table
+  ;; Use orgtbl's built-in dispatch key
+  ;; (define-key orgtbl-mode-map (kbd "C-c C-t ") #'my-orgtbl-convert-at-point)
+  (define-key orgtbl-mode-map (kbd "C-c C-t C-t") #'my-orgtbl-convert-at-point)
+  (define-key orgtbl-mode-map (kbd "C-c C-x") #'org-table-align))
 
+;;; Magit
 (use-package transient :ensure t) ;; TODO investigate confilct with internal transient package 
 (use-package magit
   :defer t
   :ensure t)
 
+;; Load markdown mode for documanttaion
+;;; Markdown
 (use-package markdown-mode
   :defer t
   :ensure t)
 
 ;;; My Functions for Emacs  
-      ;;;; Mode Line Toggle
-  (defvar-local my--saved-mode-line-format mode-line-format
-    "Backup of the mode line format for the current buffer.")
+;;;; Mode Line Toggle
+(defvar-local my--saved-mode-line-format mode-line-format
+  "Backup of the mode line format for the current buffer.")
 
-  (defun my/toggle-mode-line ()
-    "Toggle mode line visibility for the current buffer only."
-    (interactive)
-    (if mode-line-format
-        (progn
-          (setq my--saved-mode-line-format mode-line-format)
-          (setq mode-line-format nil))
-      (setq mode-line-format my--saved-mode-line-format))
-    (force-mode-line-update)
-    (redraw-display))
+(defun my/toggle-mode-line ()
+  "Toggle mode line visibility for the current buffer only."
+  (interactive)
+  (if mode-line-format
+      (progn
+        (setq my--saved-mode-line-format mode-line-format)
+        (setq mode-line-format nil))
+    (setq mode-line-format my--saved-mode-line-format))
+  (force-mode-line-update)
+  (redraw-display))
 
-    ;;;; Line Number toggle 
-  (defvar-local my--saved-display-line-numbers nil
-    "Internal storage for previous `display-line-numbers` value.")
+;;;; Line Number toggle 
+(defvar-local my--saved-display-line-numbers nil
+  "Internal storage for previous `display-line-numbers` value.")
 
-  (defun my/toggle-line-numbers ()
-    "Toggle line numbers, restoring the previous value when re-enabled."
-    (interactive)
-    (if display-line-numbers
-        ;; Turning OFF
-        (progn
-          (setq my--saved-display-line-numbers display-line-numbers)
-          (setq-local display-line-numbers nil))
-      ;; Turning ON
-      (setq-local display-line-numbers
-                  (or my--saved-display-line-numbers t))))
+(defun my/toggle-line-numbers ()
+  "Toggle line numbers, restoring the previous value when re-enabled."
+  (interactive)
+  (if display-line-numbers
+      ;; Turning OFF
+      (progn
+        (setq my--saved-display-line-numbers display-line-numbers)
+        (setq-local display-line-numbers nil))
+    ;; Turning ON
+    (setq-local display-line-numbers
+                (or my--saved-display-line-numbers t))))
 
-    ;;;; Reading / Zen Mode
-  (defun my/reading-mode ()
-    "Enter or exit a distraction-free zen mode."
-    (interactive)
-    
-    ;; Toggle mode-line
-    (my/toggle-mode-line)
-    
-    ;; Toggle line numbers (state-preserving)
-    (my/toggle-line-numbers))
+;;;; Reading / Zen Mode
+(defun my/zen-mode ()
+  "Enter or exit a distraction-free zen mode."
+  (interactive)
+  
+  ;; Toggle mode-line
+  (my/toggle-mode-line)
+  
+  ;; Toggle line numbers (state-preserving)
+  (my/toggle-line-numbers))
 
-    ;;;; Dired Sort Function
-  (defun my/dired-sort ()
-    "Sort dired listing interactively."
-    (interactive)
-    (let ((sort-options
-           '(("date" . "-Al -t")                    ; newest first
-             ("size" . "-Al -S")                    ; biggest first
-             ("name" . "-Al --group-directories-first -v")  ; human-readable name sort
-             ("dir"  . "-Al --group-directories-first")))  ; dirs first, then natural sort
-          choice
-          ls-switches)
-      (setq choice (completing-read "Sort by (default date): "
-                                    sort-options nil t nil nil "date"))
-      (setq ls-switches (cdr (assoc choice sort-options)))
-      (dired-sort-other ls-switches)))
-
-
-  ;;;; Get Dired Directory Size 
-  (defun my/dired-get-size ()
-    "Get total size of all marked files/folders in dired"
-    (interactive)
-    (let ((files (dired-get-marked-files)))
-      (with-temp-buffer
-        (apply 'call-process "/usr/bin/du" nil t nil "-sch" files)
-        (message "Size of all marked files: %s"
-                 (progn 
-                   (re-search-backward "\\(^[0-9.,]+[A-Za-z]+\\).*total$")
-                   (match-string 1))))))
+;;;; Dired Sort Function
+(defun my/dired-sort ()
+  "Sort dired listing interactively."
+  (interactive)
+  (let ((sort-options
+         '(("date" . "-Al -t")                    ; newest first
+           ("size" . "-Al -S")                    ; biggest first
+           ("name" . "-Al --group-directories-first -v")  ; human-readable name sort
+           ("dir"  . "-Al --group-directories-first")))  ; dirs first, then natural sort
+        choice
+        ls-switches)
+    (setq choice (completing-read "Sort by (default date): "
+                                  sort-options nil t nil nil "date"))
+    (setq ls-switches (cdr (assoc choice sort-options)))
+    (dired-sort-other ls-switches)))
 
 
-  (with-eval-after-load 'dired
+;;;; Get Dired Directory Size 
+(defun my/dired-get-size ()
+  "Get total size of all marked files/folders in dired"
+  (interactive)
+  (let ((files (dired-get-marked-files)))
+    (with-temp-buffer
+      (apply 'call-process "/usr/bin/du" nil t nil "-sch" files)
+      (message "Size of all marked files: %s"
+               (progn 
+                 (re-search-backward "\\(^[0-9.,]+[A-Za-z]+\\).*total$")
+                 (match-string 1))))))
+
+
+(with-eval-after-load 'dired
   (define-key dired-mode-map (kbd "?") #'my/dired-get-size))
 
-  (add-hook 'dired-mode-hook
-            (lambda ()
-              (evil-define-key 'normal dired-mode-map (kbd "?") #'my/dired-get-size)))
+(add-hook 'dired-mode-hook
+          (lambda ()
+            (evil-define-key 'normal dired-mode-map (kbd "?") #'my/dired-get-size)))
 
 
 ;;; Consult Preview For Any buffer  
@@ -720,6 +813,7 @@
   :commands toc-org-enable
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 
+;;; Org
 (use-package org
   :defer t
   :hook (org-mode . (lambda ()
@@ -735,7 +829,7 @@
    'org-babel-load-languages
    '((emacs-lisp . t)
      (python . t)
-	   (octave . t)))
+     (octave . t)))
   ;; Hide leading asterisks in headings
   (setq org-hide-leading-stars t)
   ;; Pretty entities (nicer symbols)
@@ -749,8 +843,65 @@
 
 
 (use-package gnuplot
-:ensure t
-:defer t)
+  :ensure t
+  :defer t)
+
+;;; Org Link to specific pdf page
+(with-eval-after-load 'org
+  (setq org-file-apps
+        (append '(("\\.pdf::\\([0-9]+\\)\\'" . "zathura -P %1 %s")
+                  ("\\.pdf\\'" . "zathura %s"))
+                org-file-apps)))
+
+(add-hook 'org-mode-hook #'visual-line-mode) ; Clean line wrapping
+
+(defun my/org-font-setup ()
+  "Set distinct weights and scaling factors for Org headings."
+  (set-face-attribute 'org-level-1 nil :height 1.9 :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :height 1.7 :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :height 1.5 :weight 'semi-bold)
+  (set-face-attribute 'org-level-4 nil :height 1.3 :weight 'bold)
+  (set-face-attribute 'org-level-5 nil :height 1.0 :weight 'bold))
+
+(add-hook 'org-mode-hook #'my/org-font-setup)
+
+(setq org-agenda-files '("~/org-agenda/TODO.org"
+						 "~/org-agenda/"))
+
+(setq org-capture-templates
+      '(;; --- TODO.ORG TEMPLATES ---
+        ("t" "Quick Todo" entry 
+         (file+headline "~/org-agenda/TODO.org" "Inbox")
+         "* TODO %?\n  Logged on: %U\n  Context File: [[file:%F]]\n\n  %i")
+      	
+        ("i" "Immediate / Important" entry 
+         (file+headline "~/org-agenda/TODO.org" "Immediate/Important")
+         "* TODO %?\n  SCHEDULED: %t\n  Context File: [[file:%F]]\n\n  %i")
+      	
+        ;; --- PROJECTS.ORG TEMPLATES ---
+        ("p" "New Active Project" entry 
+         (file+headline "~/org-agenda/projects.org" "Active Projects")
+         "* PROJECT %?\n  Context File: [[file:%F]]\n\n  %i")
+      	
+        ("b" "Project Backlog/Idea" entry 
+         (file+headline "~/org-agenda/projects.org" "Backlog / Pipeline")
+         "* PROJECT %?\n  Logged on: %U")
+      	
+        ("n" "Quick Project Note" entry 
+         (file+headline "~/org-agenda/projects.org" "Reference & Resources")
+         "* %?\n  Entered on: %U")
+  		("r" "Remember / Clipboard" entry 
+         (file+headline "~/org-agenda/scratch.org" "Brain Dumps")
+         "* %^{Topic / Title}\n  Logged: %U\n  Context File: [[file:%F]]\n\n  %i")))
+
+;; Automatically log the exact date and time when a task is marked DONE
+(setq org-log-done 'time)
+;; Dynamically creates a unique file for every archived project inside an archive folder
+;; Configure Refile (C-c C-w) targets to see up to 3 levels deep across all agenda files
+(setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
+;; Allow refiling to jump straight to the top of a target heading
+(setq org-refile-use-outline-path 'file)
+(setq org-outline-path-complete-in-steps nil)
 
 (use-package org-roam
   :defer t
@@ -839,7 +990,9 @@
   (setq uniquify-after-kill-buffer-p t)
   (setq uniquify-ignore-buffers-re "^\\*"))
 
-;; Define languages to install
+(global-hl-line-mode 1)
+
+;;; Treesitter
 (setq treesit-language-source-alist
       '((python "https://github.com/tree-sitter/tree-sitter-python")
         (javascript "https://github.com/tree-sitter/tree-sitter-javascript")
@@ -861,6 +1014,7 @@
     (treesit-auto-add-to-auto-mode-alist 'all)
     (global-treesit-auto-mode))
 
+;;; Vundo
 (use-package vundo
   :ensure t
   :bind ("C-x u" . vundo)
@@ -892,6 +1046,16 @@
       (winner-undo)
     (delete-other-windows)))
 
+;; bash timedatectl list-timezones to get list of timezones
+(with-eval-after-load 'time
+    (setq world-clock-list   
+          '(("Asia/Kolkata" "India")
+            ("Europe/London" "United Kingdom")
+			("America/New_York" "New York")
+            ("Asia/Tokyo" "Japan")
+            ("Europe/Paris" "France"))))
+
+;;; World CLock
 (use-package zoxide
   :ensure t
   :init
@@ -907,7 +1071,7 @@
 (global-set-key (kbd "C-c u") #'insert-char)
 (global-set-key (kbd "C-<return>") #'eval-print-last-sexp)
 (global-set-key (kbd "C-x g") #'magit)
-(global-set-key (kbd "C-x C-z") #'my/reading-mode)
+(global-set-key (kbd "C-x C-z") #'my/zen-mode)
 (global-set-key (kbd "C-c e") #'evil-mode)
 (global-set-key (kbd "C-c w w") #'delete-other-windows)
 (global-set-key (kbd "C-c w m") #'maximize-window)
@@ -915,7 +1079,12 @@
 (global-set-key (kbd "C-c w u") 'winner-undo)
 (global-set-key (kbd "C-c w r") 'winner-redo)
 (global-set-key (kbd "C-x 1") #'toggle-delete-other-windows)
+(with-eval-after-load 'css-mode
+  (define-key css-mode-map (kbd "C-c C-c") #'insert-color))
+(with-eval-after-load 'shell
+  (define-key shell-mode-map (kbd "C-c l") #'comint-clear-buffer))
 
+;;; General Keybindings
 (use-package general
   :ensure t
   :config
@@ -930,96 +1099,98 @@
   (my-leader-def
     ;; Core
     "SPC" 'execute-extended-command
-	"!" 'shell-command
+    "!" 'shell-command
     
     ;; Files
-    "ff"  'consult-find
-    "fp"  'find-file
-    "fg"  'consult-ripgrep
-    "fS"  'consult-locate
-    "fb"  'consult-buffer
-    "fr"  'consult-recent-file
-    "fd"  'consult-imenu
-    "fD"  'consult-imenu-multi
-    "fo"  'consult-outline
-    "fl"  'consult-focus-lines
-    "fj"  'zoxide-find-file
-    "xf"  'find-file
+    "ff"  #'consult-find
+    "fp"  #'find-file
+    "fg"  #'consult-ripgrep
+    "fS"  #'consult-locate
+    "fb"  #'consult-buffer
+    "fr"  #'consult-recent-file
+    "fd"  #'consult-imenu
+    "fD"  #'consult-imenu-multi
+    "fo"  #'consult-outline
+    "fl"  #'consult-focus-lines
+    "fj"  #'zoxide-find-file
+    "xf"  #'find-file
     
     ;; Diagnostics / Dir
-    "df"  'consult-flymake
-    "de"  'consult-dir
-    "dj"  'dired-jump
-    "cd"  'zoxide-travel
+    "df"  #'consult-flymake
+    "de"  #'consult-dir
+    "dj"  #'dired-jump
+    "cd"  #'zoxide-travel
     
     ;; Buffers
-    "bb"  'consult-buffer
-    "bk"  'kill-current-buffer
-    "bs"  'save-buffer
-    "ib"  'ibuffer
+    "bb"  #'consult-buffer
+    "bk"  #'kill-current-buffer
+    "bs"  #'save-buffer
+    "ib"  #'ibuffer
     
     ;; Yank
-    "yy"  'consult-yank-from-kill-ring
-    "yY"  'consult-yank-from-kill-ring
+    "yy"  #'consult-yank-from-kill-ring
+    "yY"  #'consult-yank-from-kill-ring
     
     ;; Theme
-    "th"  'consult-theme
+    "th"  #'consult-theme
     
     ;; Windows
-    "wq"  'kill-buffer-and-window
-    "wd"  'delete-window
+    "wq"  #'kill-buffer-and-window
+    "wd"  #'delete-window
     
     ;; Search
-    "cl"  'consult-line
-    "cL"  'consult-line-multi
-    "gg"  'consult-goto-line
+    "cl"  #'consult-line
+    "cL"  #'consult-line-multi
+    "gg"  #'consult-goto-line
     
     ;; Project
-    "pp"  'project-switch-project
-    "pb"  'consult-project-buffer
-    "pd"  'project-find-dir
-    "pf"  'project-find-file
-    "pg"  'project-find-regexp
-    "pD"  'project-dired
-    "ps"  'project-shell
-    "pk"  'project-kill-buffers
-    "pr"  'project-shell-command
+    "pp"  #'project-switch-project
+    "pb"  #'consult-project-buffer
+    "pd"  #'project-find-dir
+    "pf"  #'project-find-file
+    "pg"  #'project-find-regexp
+    "pD"  #'project-dired
+    "ps"  #'project-shell
+    "pk"  #'project-kill-buffers
+    "pr"  #'project-shell-command
     
     ;; Bookmarks
-    "mm"  'consult-bookmark
-    "mi"  'bookmark-insert
-    "ml"  'bookmark-insert-location
-    "mj"  'bookmark-bmenu-list
+    "mm"  #'consult-bookmark
+    "mi"  #'bookmark-insert
+    "ml"  #'bookmark-insert-location
+    "mj"  #'bookmark-bmenu-list
     
     ;; Insert / Spell
-    "ic"  'insert-char
-    "is"  'ispell
+    "ic"  #'insert-char
+    "is"  #'ispell
     
     ;; LSP / Code
-    "cf"  'eglot-format
-    "er"  'eglot-rename
-    "sl"  'imenu
+    "cf"  #'eglot-format
+    "er"  #'eglot-rename
+    "sl"  #'imenu
     
     ;; Snippets
-    "si"  'yas-insert-snippet
-    "sn"  'yas-new-snippet
-    "se"  'yas-visit-snippet-file
+    "si"  #'yas-insert-snippet
+    "sn"  #'yas-new-snippet
+    "se"  #'yas-visit-snippet-file
     
-    ;; Magit / System
-    "mg"  'magit
-    "vt"  'vterm
+    ;; System
+    "mg"  #'magit
+    "hk"  #'describe-key
+    "hv"  #'describe-variable
+    "hf"  #'describe-function
     
     ;; Narrowing
-    "xnn" 'narrow-to-region
-    "xnp" 'narrow-to-page
-    "xnd" 'narrow-to-defun
-    "xnw" 'widen
-    ;; Org
+    "cnn" #'narrow-to-region
+    "cnp" #'narrow-to-page
+    "cnd" #'narrow-to-defun
+    "cnw" #'widen
+    ;; Org / org-roam
     "oa" #'org-agenda
     "oc" #'org-capture
-	;; Latex'
-	"cm" #'latex-math-from-calc
+    "nf" #'org-roam-node-find
     )
+
   (general-define-key
    :states '(normal)
    "K" #'eldoc-box-help-at-point
@@ -1047,68 +1218,115 @@
   
   
   (my-leader-def
-	:keymaps 'org-mode-map
+    :keymaps 'org-mode-map
+    :states '(normal visual)
+    "cb" #'org-toggle-checkbox
+    "oe" #'org-emphasize
+    "ox" #'org-toggle-checkbox
+    "th" #'org-toggle-heading
+    "co" #'org-open-at-point
+    "lp" #'org-latex-preview
+    "tc" #'org-table-create-or-convert-from-region
+    "t-" #'org-ctrl-c-minus
+    "os" #'org-sort
+    "ni" #'org-roam-node-insert
+    "nl" #'org-roam-buffer-toggle
+    "oo" #'org-open-at-point
+    "ol" #'org-insert-link
+    "lt" #'org-insert-link
+    "ti" #'org-toggle-inline-images
+    "tt" #'org-todo
+    "ts" #'org-schedule
+    "ts" #'org-schedule
+    "td" #'org-deadline
+	
+    )
+  
+  (my-leader-def
+    :keymaps 'python-ts-mode-map
+    :states '(normal)
+    "cc" #'python-shell-send-buffer
+    "cr" #'python-shell-send-region
+    "co" #'run-python
+    "ce" #'python-shell-send-statement)
+  
+  
+  (my-leader-def
+    :keymaps 'julia-mode-map
+    :states '(normal)
+    "cc" #'julia-repl-send-buffer
+    "cr" #'julia-repl-send-region-or-line
+    "co" #'julia-repl
+    "ce" #'julia-repl-send-line)
+  
+  (my-leader-def
+	:keymaps 'octave-mode-map
 	:states '(normal visual)
-	"cb" #'org-toggle-checkbox
-	"th" #'org-toggle-heading
-	"co" #'org-open-at-point
-	"lp" #'org-latex-preview)
-  
-  (my-leader-def
-	:keymaps 'python-ts-mode-map
-	:states '(normal)
-	"cc" #'python-shell-send-buffer
-	"cr" #'python-shell-send-region
-	"co" #'run-python
-	"ce" #'python-shell-send-statement)
-  
-  
-  (my-leader-def
-	:keymaps 'julia-mode-map
-	:states '(normal)
-	"cc" #'julia-repl-send-buffer
-	"cr" #'julia-repl-send-region-or-line
-	"co" #'julia-repl
-	"ce" #'julia-repl-send-line)
-  
-  
-  (my-leader-def
-	:keymaps 'LaTeX-mode-map
-	:states '(normal)
-	
-	;; Compile / View
-	"ll"  #'TeX-command-master
-	"lb"  #'TeX-command-buffer
-	"lv"  #'TeX-view
-	
-	;; Environments
-	"le"  #'LaTeX-environment
-	"ls"  #'LaTeX-section
-	"lm"  #'TeX-insert-macro
-	
+	"co" #'run-octave
+	"cc" #'octave-send-buffer
+	"cr" #'octave-send-region
+	"cf" #'octave-send-defun
+	"cs" #'octave-show-process-buffer
+	"cb" #'octave-send-block
+	"ck" #'octave-kill-process
+	"ce" #'octave-send-line
+	"cq" #'octave-hide-process-buffer)
 
-	;; calc
-	"cm" #'latex-math-from-calc
-	;; Preview
-	"lpp" #'preview-at-point
-	"lps" #'preview-section
-	"lpd" #'preview-document
-	"lpb" #'preview-buffer
-	"lpc" #'preview-clearout-buffer
-	
-	;; Reftex
-	"rr"  #'reftex-reference
-	"rl"  #'reftex-label
-	"rc"  #'reftex-citation
-	"rt"  #'reftex-toc)
-  
+(my-leader-def
+  :keymaps '(text-mode-map 
+             markdown-mode-map 
+             tex-mode-map 
+             LaTeX-mode-map 
+             org-mode-map)
+  :states '(normal visual motion emacs)
+  "Dd" #'wordnet-overview
+  "DD" #'wordnet-full)
+
   (my-leader-def
-	:keymaps 'LaTeX-mode-map
-	:states '(visual)
-	"lpp" #'preview-region
-	"lpc" #'preview-clearout
-	)
+    :keymaps 'LaTeX-mode-map
+    :states '(normal)
+    
+    ;; Compile / View
+    "ll"  #'TeX-command-master
+    "lb"  #'TeX-command-buffer
+    "lv"  #'TeX-view
+    "cm"  #'latex-math-from-calc
+    
+    ;; Environments
+    "le"  #'LaTeX-environment
+    "ls"  #'LaTeX-section
+    "lm"  #'TeX-insert-macro
+    
+	
+    ;; calc
+    "cm" #'latex-math-from-calc
+    ;; Preview
+    "lpp" #'preview-at-point
+    "lps" #'preview-section
+    "lpd" #'preview-document
+    "lpb" #'preview-buffer
+    "lpc" #'preview-clearout-buffer
+    
+    ;; Reftex
+    "rr"  #'reftex-reference
+    "rl"  #'reftex-label
+    "rc"  #'reftex-citation
+    "rt"  #'reftex-toc)
+
+
   
+  ;;; Latex
+  (my-leader-def
+    :keymaps 'LaTeX-mode-map
+    :states '(visual)
+    "lpp" #'preview-region
+    "lpc" #'preview-clearout
+    )
+  (general-define-key
+   :keymaps 'org-mode-map
+   :states 'normal
+   "<tab>" #'org-cycle
+   "TAB"   #'org-cycle)
   )
 
 ;; (load-theme 'modus-vivendi t)
@@ -1123,8 +1341,6 @@
                     :family "Adwaita Mono"
                     :height 180)
 
-
-
 ;; Italics for comments
 (custom-set-faces
  '(font-lock-comment-face ((t (:slant italic)))))
@@ -1137,11 +1353,39 @@
   	    display-line-numbers-current-absolute t)
 (setq-default truncate-lines t)
 
-;;; bash timedatectl list-timezones to get list of timezones
-(with-eval-after-load 'time
-    (setq world-clock-list   
-          '(("Asia/Kolkata" "India")
-            ("Europe/London" "United Kingdom")
-			("America/New_York" "New York")
-            ("Asia/Tokyo" "Japan")
-            ("Europe/Paris" "France"))))
+(setq scroll-step 1)
+    (setq scroll-conservatively 10000)
+
+    ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
+    (setq scroll-margin 3)
+
+
+  (use-package org-superstar
+    :ensure t
+    :hook (org-mode . org-superstar-mode)
+    :config
+    ;; Hide the trailing mesh of stars, leave only the main bullet
+    (setq org-superstar-headline-bullets-list '("⦿")))
+    
+
+(use-package pdf-tools
+  :ensure t
+  :defer t
+  :commands (pdf-loader-install)
+  :mode ("\\.pdf\\'" . pdf-view-mode)
+  :bind (:map pdf-view-mode-map
+              ("j" . pdf-view-next-line-or-next-page)
+              ("k" . pdf-view-previous-line-or-previous-page)
+              ("C-s" . isearch-forward))
+  :init
+  (pdf-loader-install)
+  :config
+  ;; Automatically wrap input in search
+  (setq pdf-isearch-regexp-window-size 0)
+  
+  ;; Use mupdf for faster rendering if available (optional)
+  (setq pdf-view-use-scaling t
+        pdf-view-use-imagemagick nil)
+  
+  ;; Optional: Midnite mode (dark mode for PDFs) configuration
+  (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))

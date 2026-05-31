@@ -1,3 +1,4 @@
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq package-enable-at-startup nil)
 ;; Set the theme before the GUI loads to avoid flash
 (load-theme 'modus-vivendi t)
@@ -13,13 +14,7 @@
 ;; Increase Treesitter Performance
 (setenv "LSP_USE_PLISTS" "true")
 (setq lsp-use-plists t)
-
 (setq native-comp-speed 3)
-
-
-;; Dosent Recognize julia path set manually 
-(setenv "PATH" (concat (getenv "HOME") "/.juliaup/bin:" (getenv "PATH")))
-(setq exec-path (append '("~/.juliaup/bin") exec-path))
 
 ;; Some optimizations for emacs from https://emacsredux.com/blog/2026/04/07/stealing-from-the-best-emacs-configs/
 (setq bidi-inhibit-bpa t) ;; Inhibits by directional paranthesis algorithm for left-right languages 
@@ -27,3 +22,8 @@
 (setq-default cursor-in-non-selected-windows nil)
 (setq highlight-nonselected-windows nil)
 (setq kill-do-not-save-duplicates t)
+
+;; Dosent Recognize julia path set manually 
+(setenv "PATH" (concat (getenv "HOME") "/.juliaup/bin:" (getenv "PATH")))
+(setq exec-path (append '("~/.juliaup/bin") exec-path))
+(add-to-list 'auto-mode-alist '("\\.m\\'" . octave-mode))
