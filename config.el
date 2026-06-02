@@ -21,11 +21,11 @@
   (setq ring-bell-function #'ignore))
 
 ;; Install and configure mood-line
-(use-package mood-line
-  :config
-  (mood-line-mode 1)
-  :custom
-  (mood-line-glyph-alist mood-line-glyphs-fira-code))
+;; (use-package mood-line
+;;   :config
+;;   (mood-line-mode 1)
+;;   :custom
+;;   (mood-line-glyph-alist mood-line-glyphs-fira-code))
 
 ;;; Evil Package Vim Bindings
 (use-package evil
@@ -355,8 +355,10 @@
     :hook ((text-mode-hook 
             org-mode-hook 
             markdown-mode-hook 
-            latex-mode-hook) . (lambda ()
-                                 (local-set-key (kbd "C-c w o") 'wordnet-overview))))
+            latex-mode-hook
+			nov-mode-hook) . (lambda ()
+                                 (local-set-key (kbd "C-c d d") 'wordnet-overview)
+							   (local-set-key (kbd "C-c d D") 'wordnet-full))))
 
 ;; ;;; Wordnet Dictionary Integration
 ;; (defun my-wordnet-lookup (word flags)
@@ -1126,6 +1128,7 @@
     "bk"  #'kill-current-buffer
     "bs"  #'save-buffer
     "ib"  #'ibuffer
+
     
     ;; Yank
     "yy"  #'consult-yank-from-kill-ring
@@ -1156,6 +1159,7 @@
     
     ;; Bookmarks
     "mm"  #'consult-bookmark
+    "mn"  #'bookmark-set
     "mi"  #'bookmark-insert
     "ml"  #'bookmark-insert-location
     "mj"  #'bookmark-bmenu-list
@@ -1278,7 +1282,7 @@
              tex-mode-map 
              LaTeX-mode-map 
              org-mode-map)
-  :states '(normal visual motion emacs)
+  :states '(normal visual motion emacs nov)
   "Dd" #'wordnet-overview
   "DD" #'wordnet-full)
 
@@ -1347,17 +1351,17 @@
 
 (menu-bar-mode -1)
 (tool-bar-mode -1)
-(scroll-bar-mode t)
+(scroll-bar-mode -1)
 
 (setq-default display-line-numbers 'visual ;; behaves well with folds
   	    display-line-numbers-current-absolute t)
 (setq-default truncate-lines t)
 
 (setq scroll-step 1)
-    (setq scroll-conservatively 10000)
+  (setq scroll-conservatively 10000)
 
-    ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
-    (setq scroll-margin 3)
+  ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
+  (setq scroll-margin 3)
 
 
   (use-package org-superstar
@@ -1366,26 +1370,41 @@
     :config
     ;; Hide the trailing mesh of stars, leave only the main bullet
     (setq org-superstar-headline-bullets-list '("⦿")))
-    
 
-(use-package pdf-tools
+
+  (use-package pdf-tools
+    :ensure t
+    :defer t
+    :commands (pdf-loader-install)
+    :mode ("\\.pdf\\'" . pdf-view-mode)
+    :bind (:map pdf-view-mode-map
+                ("j" . pdf-view-next-line-or-next-page)
+                ("k" . pdf-view-previous-line-or-previous-page)
+                ("C-s" . isearch-forward))
+    :init
+    (pdf-loader-install)
+    :config
+    ;; Automatically wrap input in search
+    (setq pdf-isearch-regexp-window-size 0)
+    
+    ;; Use mupdf for faster rendering if available (optional)
+    (setq pdf-view-use-scaling t
+          pdf-view-use-imagemagick nil)
+    
+    ;; Optional: Midnite mode (dark mode for PDFs) configuration
+    (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
+
+
+(use-package nov
   :ensure t
   :defer t
-  :commands (pdf-loader-install)
-  :mode ("\\.pdf\\'" . pdf-view-mode)
-  :bind (:map pdf-view-mode-map
-              ("j" . pdf-view-next-line-or-next-page)
-              ("k" . pdf-view-previous-line-or-previous-page)
-              ("C-s" . isearch-forward))
-  :init
-  (pdf-loader-install)
+  :mode ("\\.epub\\'" . nov-mode)
+  :hook (nov-mode . (lambda ()
+                      (display-line-numbers-mode -1)
+                      (setq mode-line-format nil)))
   :config
-  ;; Automatically wrap input in search
-  (setq pdf-isearch-regexp-window-size 0)
-  
-  ;; Use mupdf for faster rendering if available (optional)
-  (setq pdf-view-use-scaling t
-        pdf-view-use-imagemagick nil)
-  
-  ;; Optional: Midnite mode (dark mode for PDFs) configuration
-  (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
+  (setq nov-text-width nil)
+  (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
+  (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
+	(require 'nov-consult)
+  (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))

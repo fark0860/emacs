@@ -87,11 +87,11 @@ A lightweight, drop-in replacement for the default Emacs mode line configuration
 Probably faster than the default moed line 
 #+begin_src emacs-lisp
   ;; Install and configure mood-line
-(use-package mood-line
-  :config
-  (mood-line-mode 1)
-  :custom
-  (mood-line-glyph-alist mood-line-glyphs-fira-code))
+;; (use-package mood-line
+;;   :config
+;;   (mood-line-mode 1)
+;;   :custom
+;;   (mood-line-glyph-alist mood-line-glyphs-fira-code))
 #+end_src
 
 
@@ -455,23 +455,26 @@ This section configures the LSP and completion setup:
 #+end_src
 
 #+begin_src emacs-lisp
-;; Color Inserter Setup
-  (use-package my-insert-colors
-    :load-path "lisp/"
-    :commands insert-color)
+  ;; Color Inserter Setup
+    (use-package my-insert-colors
+      :load-path "lisp/"
+      :commands insert-color)
 
-  ;; WordNet Setup for Prose Modes
-  (use-package my-wordnet
-    :load-path "lisp/"
-    ;; Declaring :commands creates manual autoloads to defer loading
-    :commands (wordnet-overview 
-               wordnet-full)
-    ;; Tie the keybindings to specific major modes via a local hook
-    :hook ((text-mode-hook 
-            org-mode-hook 
-            markdown-mode-hook 
-            latex-mode-hook) . (lambda ()
-                                 (local-set-key (kbd "C-c w o") 'wordnet-overview))))
+    ;; WordNet Setup for Prose Modes
+    (use-package my-wordnet
+      :load-path "lisp/"
+      ;; Declaring :commands creates manual autoloads to defer loading
+      :commands (wordnet-overview 
+                 wordnet-full)
+      ;; Tie the keybindings to specific major modes via a local hook
+      :hook ((text-mode-hook 
+              org-mode-hook 
+              markdown-mode-hook 
+              latex-mode-hook
+  			nov-mode-hook) . (lambda ()
+                                   (local-set-key (kbd "C-c d d") 'wordnet-overview)
+  							   (local-set-key (kbd "C-c d D") 'wordnet-full))))
+  
 #+end_src
 
 
@@ -1167,7 +1170,7 @@ Here we set the following
 #+begin_src emacs-lisp
   (setq-default cursor-type 'bar)
 #+end_src
-*** Fixing senetence recognition
+*** Fixing sentence recognition
 #+begin_src emacs-lisp
 (setq sentence-end-double-space nil)
 #+end_src
@@ -1468,6 +1471,7 @@ Using Emacs-Style keybindings
       "bk"  #'kill-current-buffer
       "bs"  #'save-buffer
       "ib"  #'ibuffer
+
       
       ;; Yank
       "yy"  #'consult-yank-from-kill-ring
@@ -1498,6 +1502,7 @@ Using Emacs-Style keybindings
       
       ;; Bookmarks
       "mm"  #'consult-bookmark
+      "mn"  #'bookmark-set
       "mi"  #'bookmark-insert
       "ml"  #'bookmark-insert-location
       "mj"  #'bookmark-bmenu-list
@@ -1620,7 +1625,7 @@ Using Emacs-Style keybindings
                tex-mode-map 
                LaTeX-mode-map 
                org-mode-map)
-    :states '(normal visual motion emacs)
+    :states '(normal visual motion emacs nov)
     "Dd" #'wordnet-overview
     "DD" #'wordnet-full)
 
@@ -1715,7 +1720,7 @@ Defining the various fonts that Emacs will use.
 #+begin_src emacs-lisp
   (menu-bar-mode -1)
   (tool-bar-mode -1)
-  (scroll-bar-mode t)
+  (scroll-bar-mode -1)
 #+end_src
 
 
@@ -1735,35 +1740,49 @@ Defining the various fonts that Emacs will use.
       (setq scroll-margin 3)
 
 
-    (use-package org-superstar
+      (use-package org-superstar
+        :ensure t
+        :hook (org-mode . org-superstar-mode)
+        :config
+        ;; Hide the trailing mesh of stars, leave only the main bullet
+        (setq org-superstar-headline-bullets-list '("⦿")))
+
+
+      (use-package pdf-tools
+        :ensure t
+        :defer t
+        :commands (pdf-loader-install)
+        :mode ("\\.pdf\\'" . pdf-view-mode)
+        :bind (:map pdf-view-mode-map
+                    ("j" . pdf-view-next-line-or-next-page)
+                    ("k" . pdf-view-previous-line-or-previous-page)
+                    ("C-s" . isearch-forward))
+        :init
+        (pdf-loader-install)
+        :config
+        ;; Automatically wrap input in search
+        (setq pdf-isearch-regexp-window-size 0)
+        
+        ;; Use mupdf for faster rendering if available (optional)
+        (setq pdf-view-use-scaling t
+              pdf-view-use-imagemagick nil)
+        
+        ;; Optional: Midnite mode (dark mode for PDFs) configuration
+        (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
+
+
+    (use-package nov
       :ensure t
-      :hook (org-mode . org-superstar-mode)
+      :defer t
+      :mode ("\\.epub\\'" . nov-mode)
+      :hook (nov-mode . (lambda ()
+                          (display-line-numbers-mode -1)
+                          (setq mode-line-format nil)))
       :config
-      ;; Hide the trailing mesh of stars, leave only the main bullet
-      (setq org-superstar-headline-bullets-list '("⦿")))
-      
+      (setq nov-text-width nil)
+      (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
+      (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
+  	(require 'nov-consult)
+      (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
 
-  (use-package pdf-tools
-    :ensure t
-    :defer t
-    :commands (pdf-loader-install)
-    :mode ("\\.pdf\\'" . pdf-view-mode)
-    :bind (:map pdf-view-mode-map
-                ("j" . pdf-view-next-line-or-next-page)
-                ("k" . pdf-view-previous-line-or-previous-page)
-                ("C-s" . isearch-forward))
-    :init
-    (pdf-loader-install)
-    :config
-    ;; Automatically wrap input in search
-    (setq pdf-isearch-regexp-window-size 0)
-    
-    ;; Use mupdf for faster rendering if available (optional)
-    (setq pdf-view-use-scaling t
-          pdf-view-use-imagemagick nil)
-    
-    ;; Optional: Midnite mode (dark mode for PDFs) configuration
-    (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
-
-    
 #+end_src

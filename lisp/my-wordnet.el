@@ -85,21 +85,5 @@
   (interactive (list (read-string "Word: " (thing-at-point 'word))))
   (my-wordnet-lookup word "-over"))
 
-;; (defun wordnet-synonyms-noun (word)
-;;   "List synonyms for a noun (-synsn)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-synsn"))
-
-;; (defun wordnet-antonyms (word)
-;;   "Show opposites for a word (-antsn)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-antsn"))
-
-;; (defun wordnet-hypernyms (word)
-;;   "Show more general concepts (-hypen)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-hypen"))
-
-
 (provide 'my-wordnet)
 ;;; my-wordnet.el ends here
