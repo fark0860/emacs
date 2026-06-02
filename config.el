@@ -35,56 +35,59 @@
   :init
   (setq evil-want-keybinding nil)
   (setq evil-want-integration t)
+  (setq evil-normal-state-cursor 'box)
+  (setq evil-insert-state-cursor 'bar)
+  (setq evil-visual-state-cursor 'hollow)
   (setq evil-vsplit-window-right t)
   (setq evil-split-window-below t)
   (setq evil-disable-insert-state-bindings t)
   :config
   (evil-mode 1))
 
-(use-package evil-collection
-  :ensure t
-  :after evil
-  :init
-  (setq evil-collection-setup-minibuffer t)
-  (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
-  (setq evil-collection-key-blacklist '("SPC"))
-  :config
-  (evil-collection-init)
+  (use-package evil-collection
+    :ensure t
+    :after evil
+    :init
+    (setq evil-collection-setup-minibuffer t)
+    (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
+    (setq evil-collection-key-blacklist '("SPC"))
+    :config
+    (evil-collection-init)
 
-  ;; Custom overrides
-  (evil-collection-define-key 'normal 'dired-mode-map
-    "h" 'dired-up-directory
-    "l" 'dired-find-file)
+    ;; Custom overrides
+    (evil-collection-define-key 'normal 'dired-mode-map
+      "h" 'dired-up-directory
+      "l" 'dired-find-file)
 
-  (evil-collection-define-key 'normal 'Info-mode-map
-    "h" 'Info-history-back
-    "l" 'Info-history-forward
-    "o" 'Info-menu))
+    (evil-collection-define-key 'normal 'Info-mode-map
+      "h" 'Info-history-back
+      "l" 'Info-history-forward
+      "o" 'Info-menu))
 
-(evil-set-initial-state 'package-menu-mode 'normal)
+  (evil-set-initial-state 'package-menu-mode 'normal)
 
 (use-package auto-dark
-  :ensure t
-  :demand t
-  :custom
-  ;; Dark mode → modus-vivendi; Light mode → modus-operandi
-  (auto-dark-themes '((modus-vivendi) (modus-operandi)))
-  ;; How often to check for system theme change (in seconds)
-  (auto-dark-polling-interval-seconds 5)
-  ;; Don’t use AppleScript or PowerShell 
-  (auto-dark-allow-osascript nil)
-  (auto-dark-allow-powershell nil)
-  ;; Optional: only if you know what you're doing
-  ;; (auto-dark-detection-method nil)
-  :hook
-  (auto-dark-dark-mode
-   . (lambda ()
-       (message "Switched to dark theme ☪")))
-  (auto-dark-light-mode
-   . (lambda ()
-       (message "Switched to light theme ☼")))
-  :init
-  (auto-dark-mode))
+ :ensure t
+ :demand t
+ :custom
+ ;; Dark mode → modus-vivendi; Light mode → modus-operandi
+ (auto-dark-themes '((modus-vivendi) (modus-operandi)))
+ ;; How often to check for system theme change (in seconds)
+ (auto-dark-polling-interval-seconds 5)
+ ;; Don’t use AppleScript or PowerShell 
+ (auto-dark-allow-osascript nil)
+ (auto-dark-allow-powershell nil)
+ ;; Optional: only if you know what you're doing
+ ;; (auto-dark-detection-method nil)
+ :hook
+ (auto-dark-dark-mode
+  . (lambda ()
+      (message "Switched to dark theme ☪")))
+ (auto-dark-light-mode
+  . (lambda ()
+      (message "Switched to light theme ☼")))
+ :init
+ (auto-dark-mode))
 
 (use-package evil-nerd-commenter
   :ensure t
@@ -474,6 +477,20 @@
   :hook
   (embark-collect-mode . consult-preview-at-point-mode))
 
+(use-package nov
+  :ensure t
+  :defer t
+  :mode ("\\.epub\\'" . nov-mode)
+  :hook (nov-mode . (lambda ()
+                      (display-line-numbers-mode -1)
+                      (setq mode-line-format nil)))
+  :config
+  (setq nov-text-width nil)
+  (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
+  (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
+  (require 'nov-consult)
+  (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
+
 ;;; Flash
 (use-package flash
   :commands (flash-jump flash-jump-continue
@@ -843,6 +860,12 @@
   ;; Hide emphasis markers (*bold* /italic/ =verbatim= etc.)
   (setq org-hide-emphasis-markers t))
 
+(use-package org-superstar
+      :ensure t
+      :hook (org-mode . org-superstar-mode)
+      :config
+      ;; Hide the trailing mesh of stars, leave only the main bullet
+      (setq org-superstar-headline-bullets-list '("⦿")))
 
 (use-package gnuplot
   :ensure t
@@ -926,6 +949,28 @@
   (setq org-link-frame-setup
 		'((file . find-file))))
 
+(use-package pdf-tools
+      :ensure t
+      :defer t
+      :commands (pdf-loader-install)
+      :mode ("\\.pdf\\'" . pdf-view-mode)
+      :bind (:map pdf-view-mode-map
+                  ("j" . pdf-view-next-line-or-next-page)
+                  ("k" . pdf-view-previous-line-or-previous-page)
+                  ("C-s" . isearch-forward))
+      :init
+      (pdf-loader-install)
+      :config
+      ;; Automatically wrap input in search
+      (setq pdf-isearch-regexp-window-size 0)
+      
+      ;; Use mupdf for faster rendering if available (optional)
+      (setq pdf-view-use-scaling t
+            pdf-view-use-imagemagick nil)
+      
+      ;; Optional: Midnite mode (dark mode for PDFs) configuration
+      (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
+
 (setq-default cursor-type 'bar)
 
 (setq sentence-end-double-space nil)
@@ -939,7 +984,34 @@
 
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
 
+;; Mainstream, highly readable font with excellent metrics
+(set-face-attribute 'default nil
+                    :family "Adwaita Mono"
+                    :height 180)
 
+;; Keeps code blocks and tables perfectly matched to the default prose size
+(set-face-attribute 'fixed-pitch nil
+                    :family "Adwaita Mono"
+                    :height 180)
+
+;; Italics for comments
+(custom-set-faces
+ '(font-lock-comment-face ((t (:slant italic)))))
+
+(menu-bar-mode -1)
+(tool-bar-mode -1)
+(scroll-bar-mode -1)
+
+(setq-default display-line-numbers 'visual ;; behaves well with folds
+  	    display-line-numbers-current-absolute t)
+(setq-default truncate-lines t)
+
+(setq scroll-step 1)
+(setq scroll-conservatively 10000)
+;; Keep a margin of 3 lines at the top/bottom before scrolling starts
+(setq scroll-margin 3)
+
+(setq use-dialog-box nil)
 
 (save-place-mode 1)
 
@@ -948,8 +1020,6 @@
 (global-auto-revert-mode 1)
 ;; Helpful to load changed files in dired
 (setq global-auto-revert-non-file-buffers t)
-
-(setq use-dialog-box nil)
 
 ;; Move customization variables to a separate file and load it
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))
@@ -1333,78 +1403,4 @@
    "TAB"   #'org-cycle)
   )
 
-;; (load-theme 'modus-vivendi t)
 
-;; Mainstream, highly readable font with excellent metrics
-(set-face-attribute 'default nil
-                    :family "Adwaita Mono"
-                    :height 180)
-
-;; Keeps code blocks and tables perfectly matched to the default prose size
-(set-face-attribute 'fixed-pitch nil
-                    :family "Adwaita Mono"
-                    :height 180)
-
-;; Italics for comments
-(custom-set-faces
- '(font-lock-comment-face ((t (:slant italic)))))
-
-(menu-bar-mode -1)
-(tool-bar-mode -1)
-(scroll-bar-mode -1)
-
-(setq-default display-line-numbers 'visual ;; behaves well with folds
-  	    display-line-numbers-current-absolute t)
-(setq-default truncate-lines t)
-
-(setq scroll-step 1)
-  (setq scroll-conservatively 10000)
-
-  ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
-  (setq scroll-margin 3)
-
-
-  (use-package org-superstar
-    :ensure t
-    :hook (org-mode . org-superstar-mode)
-    :config
-    ;; Hide the trailing mesh of stars, leave only the main bullet
-    (setq org-superstar-headline-bullets-list '("⦿")))
-
-
-  (use-package pdf-tools
-    :ensure t
-    :defer t
-    :commands (pdf-loader-install)
-    :mode ("\\.pdf\\'" . pdf-view-mode)
-    :bind (:map pdf-view-mode-map
-                ("j" . pdf-view-next-line-or-next-page)
-                ("k" . pdf-view-previous-line-or-previous-page)
-                ("C-s" . isearch-forward))
-    :init
-    (pdf-loader-install)
-    :config
-    ;; Automatically wrap input in search
-    (setq pdf-isearch-regexp-window-size 0)
-    
-    ;; Use mupdf for faster rendering if available (optional)
-    (setq pdf-view-use-scaling t
-          pdf-view-use-imagemagick nil)
-    
-    ;; Optional: Midnite mode (dark mode for PDFs) configuration
-    (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
-
-
-(use-package nov
-  :ensure t
-  :defer t
-  :mode ("\\.epub\\'" . nov-mode)
-  :hook (nov-mode . (lambda ()
-                      (display-line-numbers-mode -1)
-                      (setq mode-line-format nil)))
-  :config
-  (setq nov-text-width nil)
-  (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
-  (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
-	(require 'nov-consult)
-  (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))

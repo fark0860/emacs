@@ -195,5 +195,3 @@ Full string is kept, but display is truncated to MAX-LENGTH chars around match."
 
 (provide 'nov-consult)
 ;;; nov-consult.el ends here
-
-

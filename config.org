@@ -15,10 +15,10 @@
   - [[#setup][Setup]]
   - [[#lsp-setup][LSP Setup]]
 - [[#custom-plugins][Custom Plugins]]
-- [[#dictonary-word-net-support][Dictonary Word-Net Support]]
 - [[#dired][Dired]]
 - [[#eldoc][ElDoc]]
 - [[#embark][Embark]]
+- [[#epub-support][Epub Support]]
 - [[#flash][Flash]]
 - [[#folding][Folding]]
 - [[#languages][Languages]]
@@ -32,16 +32,16 @@
 - [[#magit][Magit]]
 - [[#markdown][Markdown]]
 - [[#my-functions][My Functions]]
-- [[#optionsuseful-settings][Options/Useful settings]]
 - [[#org-mode][ORG MODE]]
   - [[#org-mode-source-block][Org Mode Source Block]]
   - [[#org-tempo][Org Tempo]]
   -  [[#table-of-contents][Table of Contents]]
   - [[#general-org-mode-settings][General Org Mode Settings]]
+- [[#pdf-integration][Pdf Integration]]
 - [[#sane-defaults][Sane Defaults]]
   - [[#fixing-emacs-wierdness][Fixing Emacs Wierdness]]
-  - [[#emacs-settings][Emacs Settings]]
-  - [[#treesitter][Treesitter]]
+  - [[#emacs-qol-settings][Emacs QOL Settings]]
+- [[#treesitter][Treesitter]]
 - [[#vundo][Vundo]]
 - [[#winner-mode][Winner Mode]]
 - [[#world-clock][World Clock]]
@@ -49,10 +49,6 @@
 - [[#keybindings][Keybindings]]
   - [[#emacs-specific-keybindings][EMACS Specific keybindings]]
   - [[#evil-mode-keybindings][EVIL Mode Keybindings]]
-- [[#ui][UI]]
-  - [[#theme][Theme]]
-  - [[#fonts][FONTS]]
-  - [[#graphical-user-interface-tweaks][GRAPHICAL USER INTERFACE TWEAKS]]
 - [[#testing][Testing]]
 
 * Programs To Load First
@@ -98,7 +94,7 @@ Probably faster than the default moed line
 ** Evil Mode
 Blasphemy!!!
 #+begin_src emacs-lisp
-  ;;; Evil Package Vim Bindings
+    ;;; Evil Package Vim Bindings
   (use-package evil
     :ensure t
     :demand t
@@ -106,60 +102,63 @@ Blasphemy!!!
     :init
     (setq evil-want-keybinding nil)
     (setq evil-want-integration t)
+    (setq evil-normal-state-cursor 'box)
+    (setq evil-insert-state-cursor 'bar)
+    (setq evil-visual-state-cursor 'hollow)
     (setq evil-vsplit-window-right t)
     (setq evil-split-window-below t)
     (setq evil-disable-insert-state-bindings t)
     :config
     (evil-mode 1))
 
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :init
-    (setq evil-collection-setup-minibuffer t)
-    (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
-    (setq evil-collection-key-blacklist '("SPC"))
-    :config
-    (evil-collection-init)
+    (use-package evil-collection
+      :ensure t
+      :after evil
+      :init
+      (setq evil-collection-setup-minibuffer t)
+      (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
+      (setq evil-collection-key-blacklist '("SPC"))
+      :config
+      (evil-collection-init)
 
-    ;; Custom overrides
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "h" 'dired-up-directory
-      "l" 'dired-find-file)
+      ;; Custom overrides
+      (evil-collection-define-key 'normal 'dired-mode-map
+        "h" 'dired-up-directory
+        "l" 'dired-find-file)
 
-    (evil-collection-define-key 'normal 'Info-mode-map
-      "h" 'Info-history-back
-      "l" 'Info-history-forward
-      "o" 'Info-menu))
+      (evil-collection-define-key 'normal 'Info-mode-map
+        "h" 'Info-history-back
+        "l" 'Info-history-forward
+        "o" 'Info-menu))
 
-  (evil-set-initial-state 'package-menu-mode 'normal)
+    (evil-set-initial-state 'package-menu-mode 'normal)
 
 #+end_src
 
 * Auto Light/Dark Theme in Emacs
 #+begin_src emacs-lisp
   (use-package auto-dark
-    :ensure t
-    :demand t
-    :custom
-    ;; Dark mode → modus-vivendi; Light mode → modus-operandi
-    (auto-dark-themes '((modus-vivendi) (modus-operandi)))
-    ;; How often to check for system theme change (in seconds)
-    (auto-dark-polling-interval-seconds 5)
-    ;; Don’t use AppleScript or PowerShell 
-    (auto-dark-allow-osascript nil)
-    (auto-dark-allow-powershell nil)
-    ;; Optional: only if you know what you're doing
-    ;; (auto-dark-detection-method nil)
-    :hook
-    (auto-dark-dark-mode
-     . (lambda ()
-         (message "Switched to dark theme ☪")))
-    (auto-dark-light-mode
-     . (lambda ()
-         (message "Switched to light theme ☼")))
-    :init
-    (auto-dark-mode))
+   :ensure t
+   :demand t
+   :custom
+   ;; Dark mode → modus-vivendi; Light mode → modus-operandi
+   (auto-dark-themes '((modus-vivendi) (modus-operandi)))
+   ;; How often to check for system theme change (in seconds)
+   (auto-dark-polling-interval-seconds 5)
+   ;; Don’t use AppleScript or PowerShell 
+   (auto-dark-allow-osascript nil)
+   (auto-dark-allow-powershell nil)
+   ;; Optional: only if you know what you're doing
+   ;; (auto-dark-detection-method nil)
+   :hook
+   (auto-dark-dark-mode
+    . (lambda ()
+        (message "Switched to dark theme ☪")))
+   (auto-dark-light-mode
+    . (lambda ()
+        (message "Switched to light theme ☼")))
+   :init
+   (auto-dark-mode))
 #+end_src
 
 
@@ -446,13 +445,8 @@ This section configures the LSP and completion setup:
 
 
 * Custom Plugins
-#+begin_src elisp
-  ;; ;; Add your local lisp directory to the Emacs load path
-  ;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
-  ;; ;; Load your custom plugin
-  ;; require 'my-insert-colors)
-#+end_src
+Load Plugins that are defines in ./lisp/ directory
 
 #+begin_src emacs-lisp
   ;; Color Inserter Setup
@@ -477,44 +471,6 @@ This section configures the LSP and completion setup:
   
 #+end_src
 
-
-* Dictonary Word-Net Support
-#+begin_src emacs-lisp
-  ;; ;;; Wordnet Dictionary Integration
-  ;; (defun my-wordnet-lookup (word flags)
-  ;;   "Helper function to run the local 'wn' command, display output, and shift focus."
-  ;;   (let ((buf (get-buffer-create "*WordNet*"))
-  ;;         (cmd (format "wn %s %s" word flags)))
-  ;;     (with-current-buffer buf
-  ;;       (read-only-mode -1)
-  ;;       (erase-buffer)
-  ;;       (insert (format "WordNet Query: %s\n\n" cmd))
-  ;;       (insert (shell-command-to-string cmd))
-  ;;       (goto-char (point-min))
-  ;;       (ansi-color-apply-on-region (point-min) (point-max))
-  ;;       (view-mode 1))
-  ;;     (pop-to-buffer buf)))
-
-  ;; (defun wordnet-overview (word)
-  ;;   "Show all senses and definitions for a word (-over)."
-  ;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-  ;;   (my-wordnet-lookup word "-over"))
-
-  ;; (defun wordnet-synonyms-noun (word)
-  ;;   "List synonyms for a noun (-synsn)."
-  ;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-  ;;   (my-wordnet-lookup word "-synsn"))
-
-  ;; (defun wordnet-antonyms (word)
-  ;;   "Show opposites for a word (-antsn)."
-  ;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-  ;;   (my-wordnet-lookup word "-antsn"))
-
-  ;; (defun wordnet-hypernyms (word)
-  ;;   "Show more general concepts (-hypen)."
-  ;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-  ;;   (my-wordnet-lookup word "-hypen"))
-#+end_src
 
 * Dired
 Sorting In Dired. Also can be done with C-u s --> "-l<>" =note -l is required=
@@ -611,6 +567,24 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
     (embark-collect-mode . consult-preview-at-point-mode))
 #+end_src
 
+
+
+* Epub Support
+#+begin_src emacs-lisp
+  (use-package nov
+    :ensure t
+    :defer t
+    :mode ("\\.epub\\'" . nov-mode)
+    :hook (nov-mode . (lambda ()
+                        (display-line-numbers-mode -1)
+                        (setq mode-line-format nil)))
+    :config
+    (setq nov-text-width nil)
+    (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
+    (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
+    (require 'nov-consult)
+    (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
+#+end_src
 
 * Flash
 #+begin_src emacs-lisp
@@ -989,18 +963,6 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 #+end_src
 
 
-* Options/Useful settings
-
-#+begin_src emacs-lisp
-  (add-hook 'after-save-hook
-            #'executable-make-buffer-file-executable-if-script-p)
-
-  (setq kill-do-not-save-duplicates t)
-  (setq reb-re-syntax 'string)
-  (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
-
-#+end_src
-
 * ORG MODE
 
 ** Org Mode Source Block
@@ -1076,6 +1038,12 @@ Here we set the following
     ;; Hide emphasis markers (*bold* /italic/ =verbatim= etc.)
     (setq org-hide-emphasis-markers t))
 
+  (use-package org-superstar
+        :ensure t
+        :hook (org-mode . org-superstar-mode)
+        :config
+        ;; Hide the trailing mesh of stars, leave only the main bullet
+        (setq org-superstar-headline-bullets-list '("⦿")))
 
   (use-package gnuplot
     :ensure t
@@ -1140,7 +1108,7 @@ Here we set the following
 #+end_src
 
 #+RESULTS:
-
+*** Org Roam
 #+begin_src emacs-lisp
   (use-package org-roam
     :defer t
@@ -1162,6 +1130,34 @@ Here we set the following
     (require 'org-roam-protocol)
     (setq org-link-frame-setup
   		'((file . find-file))))
+#+end_src
+
+
+
+* Pdf Integration
+
+#+begin_src emacs-lisp
+  (use-package pdf-tools
+        :ensure t
+        :defer t
+        :commands (pdf-loader-install)
+        :mode ("\\.pdf\\'" . pdf-view-mode)
+        :bind (:map pdf-view-mode-map
+                    ("j" . pdf-view-next-line-or-next-page)
+                    ("k" . pdf-view-previous-line-or-previous-page)
+                    ("C-s" . isearch-forward))
+        :init
+        (pdf-loader-install)
+        :config
+        ;; Automatically wrap input in search
+        (setq pdf-isearch-regexp-window-size 0)
+        
+        ;; Use mupdf for faster rendering if available (optional)
+        (setq pdf-view-use-scaling t
+              pdf-view-use-imagemagick nil)
+        
+        ;; Optional: Midnite mode (dark mode for PDFs) configuration
+        (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
 #+end_src
 
 * Sane Defaults
@@ -1191,25 +1187,82 @@ Useless
 #+begin_src emacs-lisp
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
 #+end_src
-*** Smooth Scrolling
-Native in 29+ is the best 
+
+
+** Emacs QOL Settings 
+*** GRAPHICAL USER INTERFACE TWEAKS
+**** FONTS
+Defining the various fonts that Emacs will use.
+
 #+begin_src emacs-lisp
+
+    ;; Mainstream, highly readable font with excellent metrics
+  (set-face-attribute 'default nil
+                      :family "Adwaita Mono"
+                      :height 180)
+
+  ;; Keeps code blocks and tables perfectly matched to the default prose size
+  (set-face-attribute 'fixed-pitch nil
+                      :family "Adwaita Mono"
+                      :height 180)
+  
+  ;; Italics for comments
+  (custom-set-faces
+   '(font-lock-comment-face ((t (:slant italic)))))
+
 #+end_src
 
 
-** Emacs Settings
-*** Remember File Position
+
+
+**** Disable Menubar, Toolbars and Scrollbars
+
+#+begin_src emacs-lisp
+  (menu-bar-mode -1)
+  (tool-bar-mode -1)
+  (scroll-bar-mode -1)
+#+end_src
+
+
+**** Display Line Numbers and Truncated Lines
+#+begin_src emacs-lisp
+  (setq-default display-line-numbers 'visual ;; behaves well with folds
+    	    display-line-numbers-current-absolute t)
+  (setq-default truncate-lines t)
+#+end_src
+
+
+**** Smooth Scrolling
+Native in 29+ is the best 
+
+#+begin_src emacs-lisp
+  (setq scroll-step 1)
+  (setq scroll-conservatively 10000)
+  ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
+  (setq scroll-margin 3)
+#+end_src
+
+
+**** Prevent using UI for conformation dialog
+#+begin_src emacs-lisp
+(setq use-dialog-box nil)
+#+end_src
+
+
+
+*** General settings ( variables/behaviour)
+**** Remember File Position
 
 #+begin_src emacs-lisp
   (save-place-mode 1)
 #+end_src
 
-*** Restore Last Session
+**** Restore Last Session
 #+begin_src emacs-lisp
   (desktop-save-mode -1)
 #+end_src
 
-*** Auto load files changed on Disk
+**** Auto load files changed on Disk
 Automatically reverts buffers changed on disk
 #+begin_src emacs-lisp
   (global-auto-revert-mode 1)
@@ -1217,19 +1270,15 @@ Automatically reverts buffers changed on disk
   (setq global-auto-revert-non-file-buffers t)
 #+end_src
 
-*** Prevent using UI for conformation dialog
-#+begin_src emacs-lisp
-(setq use-dialog-box nil)
-#+end_src
 
-*** Avoid loading custom varable changes in init.el
+**** Avoid loading custom varable changes in init.el
 #+begin_src emacs-lisp
 ;; Move customization variables to a separate file and load it
 (setq custom-file (locate-user-emacs-file "custom-vars.el"))
 (load custom-file 'noerror 'nomessage)
 #+end_src
 
-*** Clipboard Integration With System
+**** Clipboard Integration With System
 Fix for clipboard not working in fedora (not requiredfor other distros)
 #+begin_src emacs-lisp
   ;; ;; Disable native clipboard to avoid Wayland/PGTK bugs after Emacs copies
@@ -1256,22 +1305,22 @@ Fix for clipboard not working in fedora (not requiredfor other distros)
   ;; (setq interprogram-paste-function 'wl-paste)
 #+end_src
 
-*** Tabs
+**** Tabs
 #+begin_src emacs-lisp
   (setq-default tab-width 4)
 #+end_src
 
-*** Auto closing of pair delimeters (AutoClose)
+**** Auto closing of pair delimeters (AutoClose)
 #+begin_src emacs-lisp
   (electric-pair-mode 1)
 #+end_src
 
-*** Tab Bar
+**** Tab Bar
 #+begin_src emacs-lisp
   (setq-default tab-bar-show 1)
 #+end_src
 
-*** Uniquify
+**** Uniquify
 Buffer with same name get better smart names
 #+begin_src emacs-lisp
   (use-package uniquify
@@ -1284,15 +1333,36 @@ Buffer with same name get better smart names
 #+end_src
 
 
-*** Highlight Line Mode
+**** Highlight Line Mode
 
 #+begin_src emacs-lisp
   (global-hl-line-mode 1)
 #+end_src
 
 
+**** Make script Executable on Save
+#+begin_src emacs-lisp
+  (add-hook 'after-save-hook
+            #'executable-make-buffer-file-executable-if-script-p)
+#+end_src
 
-** Treesitter
+**** No Duplicates in kill-ring
+#+begin_src emacs-lisp
+  (setq kill-do-not-save-duplicates t)
+#+end_src
+
+**** Regex Builder avoid \\
+#+begin_src emacs-lisp
+  (setq reb-re-syntax 'string)
+#+end_src
+
+**** Auto Focus Help Buffers
+#+begin_src emacs-lisp
+  (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
+#+end_src
+
+
+* Treesitter
 - Color me impressed
 #+begin_src emacs-lisp
   ;;; Treesitter
@@ -1678,111 +1748,7 @@ Using Emacs-Style keybindings
 #+end_src
 
 
-* UI 
-
-** Theme
-Load theme in early-init to avoid UI loading with light theme
-#+begin_src emacs-lisp
-  ;; (load-theme 'modus-vivendi t)
-#+end_src
-
-
-** FONTS
-Defining the various fonts that Emacs will use.
-
-
-
-#+begin_src emacs-lisp
-
-    ;; Mainstream, highly readable font with excellent metrics
-  (set-face-attribute 'default nil
-                      :family "Adwaita Mono"
-                      :height 180)
-
-  ;; Keeps code blocks and tables perfectly matched to the default prose size
-  (set-face-attribute 'fixed-pitch nil
-                      :family "Adwaita Mono"
-                      :height 180)
-  
-  ;; Italics for comments
-  (custom-set-faces
-   '(font-lock-comment-face ((t (:slant italic)))))
-
-#+end_src
-
-
-
-
-** GRAPHICAL USER INTERFACE TWEAKS
-
-*** Disable Menubar, Toolbars and Scrollbars
-
-#+begin_src emacs-lisp
-  (menu-bar-mode -1)
-  (tool-bar-mode -1)
-  (scroll-bar-mode -1)
-#+end_src
-
-
-*** Display Line Numbers and Truncated Lines
-#+begin_src emacs-lisp
-  (setq-default display-line-numbers 'visual ;; behaves well with folds
-    	    display-line-numbers-current-absolute t)
-  (setq-default truncate-lines t)
-#+end_src
-
 * Testing
 #+begin_src emacs-lisp
-      (setq scroll-step 1)
-      (setq scroll-conservatively 10000)
-
-      ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
-      (setq scroll-margin 3)
-
-
-      (use-package org-superstar
-        :ensure t
-        :hook (org-mode . org-superstar-mode)
-        :config
-        ;; Hide the trailing mesh of stars, leave only the main bullet
-        (setq org-superstar-headline-bullets-list '("⦿")))
-
-
-      (use-package pdf-tools
-        :ensure t
-        :defer t
-        :commands (pdf-loader-install)
-        :mode ("\\.pdf\\'" . pdf-view-mode)
-        :bind (:map pdf-view-mode-map
-                    ("j" . pdf-view-next-line-or-next-page)
-                    ("k" . pdf-view-previous-line-or-previous-page)
-                    ("C-s" . isearch-forward))
-        :init
-        (pdf-loader-install)
-        :config
-        ;; Automatically wrap input in search
-        (setq pdf-isearch-regexp-window-size 0)
-        
-        ;; Use mupdf for faster rendering if available (optional)
-        (setq pdf-view-use-scaling t
-              pdf-view-use-imagemagick nil)
-        
-        ;; Optional: Midnite mode (dark mode for PDFs) configuration
-        (setq pdf-view-midnight-colors '("#bbc2cf" . "#282c34")))
-
-
-    (use-package nov
-      :ensure t
-      :defer t
-      :mode ("\\.epub\\'" . nov-mode)
-      :hook (nov-mode . (lambda ()
-                          (display-line-numbers-mode -1)
-                          (setq mode-line-format nil)))
-      :config
-      (setq nov-text-width nil)
-      (define-key nov-mode-map (kbd "C-c d d") 'wordnet-overview)
-      (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
-  	(require 'nov-consult)
-      (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
 
 #+end_src

@@ -8,24 +8,12 @@
  '(highlight-indent-guides-method 'character)
  '(ignored-local-variable-values '((reftex-default-bibliography "references.bib")))
  '(inhibit-startup-screen t)
- '(newsticker-url-list
-   '(("r/emacs" "https://www.reddit.com/r/emacs.rss" nil nil nil)
-	 ("Veronica's Linux Blog" "https://vkc.sh/feed/" nil nil nil)
-	 ("Karthink's Blog about Emacs and Latex"
-	  "https://karthinks.com/index.xml" nil nil nil)
-	 ("Emacs Life" "https://planet.emacslife.com/atom.xml" nil nil nil)))
  '(nov-text-width nil)
  '(org-format-latex-options
    '(:foreground default :background default :scale 1.3 :html-foreground
 				 "Black" :html-background "Transparent" :html-scale
 				 1.0 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
- '(package-selected-packages
-   '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
-			   evil-collection evil-nerd-commenter flash general
-			   gnuplot julia-repl julia-ts-mode laas magit marginalia
-			   markdown-mode nov orderless org-roam org-superstar
-			   pdf-tools toc-org treesit-auto vertico vundo
-			   yasnippet-capf yasnippet-snippets zoxide))
+ '(package-selected-packages nil)
  '(preview-scale-function 1.0 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
