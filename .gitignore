@@ -9,3 +9,7 @@
 /.project
 /.org-id-locations
 /.emacs.desktop
+/eshell/
+/newsticker/
+/persist/
+/url/
