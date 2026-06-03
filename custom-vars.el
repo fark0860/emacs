@@ -13,8 +13,14 @@
    '(:foreground default :background default :scale 1.3 :html-foreground
 				 "Black" :html-background "Transparent" :html-scale
 				 1.0 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
- '(package-selected-packages nil)
- '(preview-scale-function 1.0 t))
+ '(package-selected-packages
+   '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
+			   evil-collection evil-nerd-commenter flash general
+			   gnuplot julia-repl julia-ts-mode laas magit marginalia
+			   markdown-mode nov orderless org-roam org-superstar
+			   pdf-tools toc-org treesit-auto vertico vundo
+			   yasnippet-capf yasnippet-snippets zoxide))
+ '(preview-scale-function 1.0))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

@@ -258,7 +258,7 @@
          ("C-x C-j" . consult-dir-jump-file)))
 
 ;;; LSP and Completion
-;;;; Core LSP: Eglot (built-in, fast)
+  ;;;; Core LSP: Eglot (built-in, fast)
 (use-package eglot
   :defer t
   :custom
@@ -274,11 +274,16 @@
    (js-ts-mode . eglot-ensure)
    (typescript-ts-mode . eglot-ensure)
    (julia-ts-mode . eglot-ensure)
-   (rust-ts-mode . eglot-ensure))) 
+   (rust-ts-mode . eglot-ensure)) 
+  :config
+  ;; Override the default Digestif setting to make TexLab default
+  (add-to-list 'eglot-server-programs
+               '((tex-mode context-mode texinfo-mode bibtex-mode
+						   latex-mode LaTeX-mode plain-tex-mode) . ("texlab"))))
 
 
 
-;;;; popup completion: Corfu
+  ;;;; popup completion: Corfu
 (use-package corfu
   :ensure t
   :custom
@@ -295,14 +300,14 @@
   (evil-collection-corfu-setup))
 
 
-;;; Snippets
-;;;; Yasnippet
+  ;;; Snippets
+  ;;;; Yasnippet
 (use-package yasnippet
   :ensure t
   :config
   (yas-global-mode 1))  ;; Enable Yasnippet globally
 
-;;;; Yasnippets Collection
+  ;;;; Yasnippets Collection
 (use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
   :ensure t)
 
@@ -310,7 +315,7 @@
   :ensure t
   :after (yasnippet cape))
 
-;;;; cape capfs
+  ;;;; cape capfs
 (use-package cape
   :ensure t
   :init
@@ -337,12 +342,6 @@
 
 (add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
 
-;; ;; Add your local lisp directory to the Emacs load path
-;; (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-
-;; ;; Load your custom plugin
-;; require 'my-insert-colors)
-
 ;; Color Inserter Setup
   (use-package my-insert-colors
     :load-path "lisp/"
@@ -362,41 +361,6 @@
 			nov-mode-hook) . (lambda ()
                                  (local-set-key (kbd "C-c d d") 'wordnet-overview)
 							   (local-set-key (kbd "C-c d D") 'wordnet-full))))
-
-;; ;;; Wordnet Dictionary Integration
-;; (defun my-wordnet-lookup (word flags)
-;;   "Helper function to run the local 'wn' command, display output, and shift focus."
-;;   (let ((buf (get-buffer-create "*WordNet*"))
-;;         (cmd (format "wn %s %s" word flags)))
-;;     (with-current-buffer buf
-;;       (read-only-mode -1)
-;;       (erase-buffer)
-;;       (insert (format "WordNet Query: %s\n\n" cmd))
-;;       (insert (shell-command-to-string cmd))
-;;       (goto-char (point-min))
-;;       (ansi-color-apply-on-region (point-min) (point-max))
-;;       (view-mode 1))
-;;     (pop-to-buffer buf)))
-
-;; (defun wordnet-overview (word)
-;;   "Show all senses and definitions for a word (-over)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-over"))
-
-;; (defun wordnet-synonyms-noun (word)
-;;   "List synonyms for a noun (-synsn)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-synsn"))
-
-;; (defun wordnet-antonyms (word)
-;;   "Show opposites for a word (-antsn)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-antsn"))
-
-;; (defun wordnet-hypernyms (word)
-;;   "Show more general concepts (-hypen)."
-;;   (interactive (list (read-string "Word: " (thing-at-point 'word))))
-;;   (my-wordnet-lookup word "-hypen"))
 
 (setq dired-listing-switches "-Al --group-directories-first -v") ;; Set default dired view
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
@@ -816,13 +780,6 @@
 
 (define-key minibuffer-local-map (kbd "M-p") #'my/consult-preview)
 
-(add-hook 'after-save-hook
-          #'executable-make-buffer-file-executable-if-script-p)
-
-(setq kill-do-not-save-duplicates t)
-(setq reb-re-syntax 'string)
-(setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
-
 (setq org-src-window-setup 'current-window)  ;; edits in the current window
 
 (require 'org-tempo)
@@ -1064,6 +1021,15 @@
 
 (global-hl-line-mode 1)
 
+(add-hook 'after-save-hook
+          #'executable-make-buffer-file-executable-if-script-p)
+
+(setq kill-do-not-save-duplicates t)
+
+(setq reb-re-syntax 'string)
+
+(setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
+
 ;;; Treesitter
 (setq treesit-language-source-alist
       '((python "https://github.com/tree-sitter/tree-sitter-python")
@@ -1151,6 +1117,7 @@
 (global-set-key (kbd "C-c w u") 'winner-undo)
 (global-set-key (kbd "C-c w r") 'winner-redo)
 (global-set-key (kbd "C-x 1") #'toggle-delete-other-windows)
+
 (with-eval-after-load 'css-mode
   (define-key css-mode-map (kbd "C-c C-c") #'insert-color))
 (with-eval-after-load 'shell

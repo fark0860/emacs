@@ -361,8 +361,8 @@ This section configures the LSP and completion setup:
 
 #+begin_src emacs-lisp
 
-  ;;; LSP and Completion
-  ;;;; Core LSP: Eglot (built-in, fast)
+    ;;; LSP and Completion
+    ;;;; Core LSP: Eglot (built-in, fast)
   (use-package eglot
     :defer t
     :custom
@@ -378,11 +378,16 @@ This section configures the LSP and completion setup:
      (js-ts-mode . eglot-ensure)
      (typescript-ts-mode . eglot-ensure)
      (julia-ts-mode . eglot-ensure)
-     (rust-ts-mode . eglot-ensure))) 
+     (rust-ts-mode . eglot-ensure)) 
+    :config
+    ;; Override the default Digestif setting to make TexLab default
+    (add-to-list 'eglot-server-programs
+                 '((tex-mode context-mode texinfo-mode bibtex-mode
+  						   latex-mode LaTeX-mode plain-tex-mode) . ("texlab"))))
 
 
 
-  ;;;; popup completion: Corfu
+    ;;;; popup completion: Corfu
   (use-package corfu
     :ensure t
     :custom
@@ -399,14 +404,14 @@ This section configures the LSP and completion setup:
     (evil-collection-corfu-setup))
 
 
-  ;;; Snippets
-  ;;;; Yasnippet
+    ;;; Snippets
+    ;;;; Yasnippet
   (use-package yasnippet
     :ensure t
     :config
     (yas-global-mode 1))  ;; Enable Yasnippet globally
 
-  ;;;; Yasnippets Collection
+    ;;;; Yasnippets Collection
   (use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
     :ensure t)
 
@@ -414,7 +419,7 @@ This section configures the LSP and completion setup:
     :ensure t
     :after (yasnippet cape))
 
-  ;;;; cape capfs
+    ;;;; cape capfs
   (use-package cape
     :ensure t
     :init
@@ -1361,7 +1366,6 @@ Buffer with same name get better smart names
   (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
 #+end_src
 
-
 * Treesitter
 - Color me impressed
 #+begin_src emacs-lisp
@@ -1484,10 +1488,6 @@ Using Emacs-Style keybindings
   (global-set-key (kbd "C-c w u") 'winner-undo)
   (global-set-key (kbd "C-c w r") 'winner-redo)
   (global-set-key (kbd "C-x 1") #'toggle-delete-other-windows)
-  (with-eval-after-load 'css-mode
-    (define-key css-mode-map (kbd "C-c C-c") #'insert-color))
-  (with-eval-after-load 'shell
-    (define-key shell-mode-map (kbd "C-c l") #'comint-clear-buffer))
 
 #+end_src
 
@@ -1495,6 +1495,12 @@ Using Emacs-Style keybindings
 : balance-windows
 
 *** Mode Specific keybindings
+#+begin_src emacs-lisp
+  (with-eval-after-load 'css-mode
+    (define-key css-mode-map (kbd "C-c C-c") #'insert-color))
+  (with-eval-after-load 'shell
+    (define-key shell-mode-map (kbd "C-c l") #'comint-clear-buffer))
+#+end_src
 
 ** EVIL Mode Keybindings
 
