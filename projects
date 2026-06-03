@@ -1,4 +1,4 @@
 ;;; -*- lisp-data -*-
-(("/home/zay/.emacs.d/") ("/home/zay/org-agenda/")
- ("/home/zay/.dotfiles/") ("/home/zay/scripts/")
- ("/home/zay/Project/Thesis Phase 2/"))
+(("/home/zay/Project/Thesis Phase 2/") ("/home/zay/.emacs.d/")
+ ("/home/zay/org-agenda/") ("/home/zay/.dotfiles/")
+ ("/home/zay/scripts/"))

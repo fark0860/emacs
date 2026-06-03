@@ -5,7 +5,7 @@
 * Table Of Contents :toc:
 - [[#programs-to-load-first][Programs To Load First]]
   - [[#package-manager][Package Manager]]
-  - [[#moodline][MoodLine]]
+  - [[#mode-line-config][Mode Line Config]]
   - [[#evil-mode][Evil Mode]]
 - [[#auto-lightdark-theme-in-emacs][Auto Light/Dark Theme in Emacs]]
 - [[#comments][Comments]]
@@ -78,16 +78,40 @@
 
 #+end_src
 
-** MoodLine
+** Mode Line Config
 A lightweight, drop-in replacement for the default Emacs mode line configuration.
 Probably faster than the default moed line 
 #+begin_src emacs-lisp
-  ;; Install and configure mood-line
-;; (use-package mood-line
-;;   :config
-;;   (mood-line-mode 1)
-;;   :custom
-;;   (mood-line-glyph-alist mood-line-glyphs-fira-code))
+  (use-package minions 
+    :ensure t
+    :hook (after-init . minions-mode)
+    :custom (minions-mode-line-lighter " ⚙"))
+
+  (use-package mood-line
+    :ensure t
+    :config
+    (mood-line-mode 1)
+
+    (defun my-mood-line-segment-minions ()
+      "Render the minions major and minor mode menu into a flat string."
+      (format-mode-line minions-mode-line-modes))
+
+    ;; Redefine the mood-line layout
+    (setq mood-line-format
+          (mood-line-defformat
+           :left
+           (((mood-line-segment-modal)             . " ")
+            ((mood-line-segment-buffer-status)     . "")
+            ((mood-line-segment-buffer-name)       . "  ")
+            ((mood-line-segment-cursor-position)   . ""))
+           
+           :right
+           (;; Major and minor modes moved here
+            ((my-mood-line-segment-minions)        . "  ")
+            ((mood-line-segment-scroll)            . " ")
+            ((mood-line-segment-process)           . " ")
+            ((mood-line-segment-vc)                . "  ")
+            ((mood-line-segment-checker)           . "")))))
 #+end_src
 
 
@@ -593,24 +617,30 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 
 * Flash
 #+begin_src emacs-lisp
-  ;;; Flash
-  (use-package flash
-    :commands (flash-jump flash-jump-continue
-  						flash-treesitter)
-    :bind ("s-j" . flash-jump)
-    :custom
-    (flash-multi-window t)
-    (flash-char-jump-labels t)
-    :init
-    ;; Evil integration (simple setup)
-    (with-eval-after-load 'evil
-      (require 'flash-evil)
-      (flash-evil-setup t))  ; t = also set up f/t/F/T char motions
-    ;; (setq flash-char-jump-labels t)
-    :config
-    ;; Search integration (labels during C-s, /, ?)
-    (require 'flash-isearch)
-    (flash-isearch-mode 1))
+
+(use-package flash
+  :commands (flash-jump flash-jump-continue flash-treesitter)
+  :bind ("C-c s" . flash-jump)
+  :custom
+  (flash-multi-window t)
+  (flash-char-jump-labels t)
+  :init
+  ;; Evil integration
+  (with-eval-after-load 'evil
+    (require 'flash-evil)
+    ;; Changed to nil because (flash-char-setup-evil-keys) is called explicitly below
+    (flash-evil-setup nil)
+    
+    ;; Official documentation custom keybindings
+    (evil-global-set-key 'normal (kbd "s") #'flash-evil-jump)
+    (evil-global-set-key 'visual (kbd "s") #'flash-evil-jump)
+    
+    ;; Set up f/t/F/T char motions manually as per docs
+    (flash-char-setup-evil-keys))
+  :config
+  ;; Search integration (labels during C-s, /, ?)
+  (require 'flash-isearch)
+  (flash-isearch-mode 1))
 
 #+end_src
 
@@ -673,11 +703,9 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 ** Latex
 #+begin_src emacs-lisp
   ;; FORCE GLOBAL PREVIEW OVERRIDES BEFORE LOADING
-  ;;(setq-default TeX-PDF-mode nil)
   (setq preview-image-type 'dvipng) ; Changed from 'dvi* to 'dvipng
   (setq preview-scale-function nil)
   (setq preview-LaTeX-command-replacements '(preview-LaTeX-disable-pdfoutput))
-  ;;(setq preview-fast-conversion nil)
 
   ;;;; Latex
   (use-package latex
@@ -1200,25 +1228,13 @@ Useless
 Defining the various fonts that Emacs will use.
 
 #+begin_src emacs-lisp
-
-    ;; Mainstream, highly readable font with excellent metrics
   (set-face-attribute 'default nil
-                      :family "Adwaita Mono"
                       :height 180)
-
-  ;; Keeps code blocks and tables perfectly matched to the default prose size
-  (set-face-attribute 'fixed-pitch nil
-                      :family "Adwaita Mono"
-                      :height 180)
-  
   ;; Italics for comments
   (custom-set-faces
    '(font-lock-comment-face ((t (:slant italic)))))
 
 #+end_src
-
-
-
 
 **** Disable Menubar, Toolbars and Scrollbars
 
@@ -1228,14 +1244,12 @@ Defining the various fonts that Emacs will use.
   (scroll-bar-mode -1)
 #+end_src
 
-
 **** Display Line Numbers and Truncated Lines
 #+begin_src emacs-lisp
   (setq-default display-line-numbers 'visual ;; behaves well with folds
     	    display-line-numbers-current-absolute t)
   (setq-default truncate-lines t)
 #+end_src
-
 
 **** Smooth Scrolling
 Native in 29+ is the best 
@@ -1247,7 +1261,6 @@ Native in 29+ is the best
   (setq scroll-margin 3)
 #+end_src
 
-
 **** Prevent using UI for conformation dialog
 #+begin_src emacs-lisp
 (setq use-dialog-box nil)
@@ -1257,7 +1270,6 @@ Native in 29+ is the best
 
 *** General settings ( variables/behaviour)
 **** Remember File Position
-
 #+begin_src emacs-lisp
   (save-place-mode 1)
 #+end_src
@@ -1274,7 +1286,6 @@ Automatically reverts buffers changed on disk
   ;; Helpful to load changed files in dired
   (setq global-auto-revert-non-file-buffers t)
 #+end_src
-
 
 **** Avoid loading custom varable changes in init.el
 #+begin_src emacs-lisp
@@ -1337,13 +1348,11 @@ Buffer with same name get better smart names
     (setq uniquify-ignore-buffers-re "^\\*"))
 #+end_src
 
-
 **** Highlight Line Mode
 
 #+begin_src emacs-lisp
   (global-hl-line-mode 1)
 #+end_src
-
 
 **** Make script Executable on Save
 #+begin_src emacs-lisp
@@ -1351,6 +1360,44 @@ Buffer with same name get better smart names
             #'executable-make-buffer-file-executable-if-script-p)
 #+end_src
 
+ extracting: /tmp/nov-LT2o1N.epub/mimetype  
+   creating: /tmp/nov-LT2o1N.epub/META-INF/
+  inflating: /tmp/nov-LT2o1N.epub/META-INF/container.xml  
+  inflating: /tmp/nov-LT2o1N.epub/74.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/57.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/page_styles.css  
+  inflating: /tmp/nov-LT2o1N.epub/stylesheet.css  
+  inflating: /tmp/nov-LT2o1N.epub/71.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/56.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/76.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/68.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/59.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/58.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/55.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/73.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/54.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/50.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/70.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/64.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/62.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/75.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/60.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/72.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/69.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/66.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/63.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/52.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/53.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/51.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/65.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/titlepage.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/cover.jpeg  
+  inflating: /tmp/nov-LT2o1N.epub/273.gif  
+  inflating: /tmp/nov-LT2o1N.epub/67.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/61.xhtml  
+  inflating: /tmp/nov-LT2o1N.epub/toc.ncx  
+  inflating: /tmp/nov-LT2o1N.epub/content.opf  
+  inflating: /tmp/nov-LT2o1N.epub/META-INF/calibre_bookmarks.txt  
 **** No Duplicates in kill-ring
 #+begin_src emacs-lisp
   (setq kill-do-not-save-duplicates t)
@@ -1366,6 +1413,10 @@ Buffer with same name get better smart names
   (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
 #+end_src
 
+**** Setting Alternate Dictionary for Autocompletion in Prose
+#+begin_src emacs-lisp
+(setq ispell-alternate-dictionary "/usr/share/dict/words")
+#+end_src
 * Treesitter
 - Color me impressed
 #+begin_src emacs-lisp

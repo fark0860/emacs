@@ -20,12 +20,36 @@
   :config
   (setq ring-bell-function #'ignore))
 
-;; Install and configure mood-line
-;; (use-package mood-line
-;;   :config
-;;   (mood-line-mode 1)
-;;   :custom
-;;   (mood-line-glyph-alist mood-line-glyphs-fira-code))
+(use-package minions 
+  :ensure t
+  :hook (after-init . minions-mode)
+  :custom (minions-mode-line-lighter " ⚙"))
+
+(use-package mood-line
+  :ensure t
+  :config
+  (mood-line-mode 1)
+
+  (defun my-mood-line-segment-minions ()
+    "Render the minions major and minor mode menu into a flat string."
+    (format-mode-line minions-mode-line-modes))
+
+  ;; Redefine the mood-line layout
+  (setq mood-line-format
+        (mood-line-defformat
+         :left
+         (((mood-line-segment-modal)             . " ")
+          ((mood-line-segment-buffer-status)     . "")
+          ((mood-line-segment-buffer-name)       . "  ")
+          ((mood-line-segment-cursor-position)   . ""))
+         
+         :right
+         (;; Major and minor modes moved here
+          ((my-mood-line-segment-minions)        . "  ")
+          ((mood-line-segment-scroll)            . " ")
+          ((mood-line-segment-process)           . " ")
+          ((mood-line-segment-vc)                . "  ")
+          ((mood-line-segment-checker)           . "")))))
 
 ;;; Evil Package Vim Bindings
 (use-package evil
@@ -456,19 +480,43 @@
   (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
 
 ;;; Flash
+  ;; (use-package flash
+  ;;   :commands (flash-jump flash-jump-continue
+  ;; 						flash-treesitter)
+  ;;   :bind ("C-c s" . flash-jump)
+  ;;   :custom
+  ;;   (flash-multi-window t)
+  ;;   (flash-char-jump-labels t)
+  ;;   :init
+  ;;   ;; Evil integration (simple setup)
+  ;;   (with-eval-after-load 'evil
+  ;;     (require 'flash-evil)
+  ;;     (flash-evil-setup t))  ; t = also set up f/t/F/T char motions
+  ;;   ;; (setq flash-char-jump-labels t)
+  ;;   :config
+  ;;   ;; Search integration (labels during C-s, /, ?)
+  ;;   (require 'flash-isearch)
+  ;;   (flash-isearch-mode 1))
+
 (use-package flash
-  :commands (flash-jump flash-jump-continue
-						flash-treesitter)
-  :bind ("s-j" . flash-jump)
+  :commands (flash-jump flash-jump-continue flash-treesitter)
+  :bind ("C-c s" . flash-jump)
   :custom
   (flash-multi-window t)
   (flash-char-jump-labels t)
   :init
-  ;; Evil integration (simple setup)
+  ;; Evil integration
   (with-eval-after-load 'evil
     (require 'flash-evil)
-    (flash-evil-setup t))  ; t = also set up f/t/F/T char motions
-  ;; (setq flash-char-jump-labels t)
+    ;; Changed to nil because (flash-char-setup-evil-keys) is called explicitly below
+    (flash-evil-setup nil)
+    
+    ;; Official documentation custom keybindings
+    (evil-global-set-key 'normal (kbd "s") #'flash-evil-jump)
+    (evil-global-set-key 'visual (kbd "s") #'flash-evil-jump)
+    
+    ;; Set up f/t/F/T char motions manually as per docs
+    (flash-char-setup-evil-keys))
   :config
   ;; Search integration (labels during C-s, /, ?)
   (require 'flash-isearch)
@@ -510,11 +558,9 @@
         ("C-c C-l" . julia-repl-send-line)))
 
 ;; FORCE GLOBAL PREVIEW OVERRIDES BEFORE LOADING
-;;(setq-default TeX-PDF-mode nil)
 (setq preview-image-type 'dvipng) ; Changed from 'dvi* to 'dvipng
 (setq preview-scale-function nil)
 (setq preview-LaTeX-command-replacements '(preview-LaTeX-disable-pdfoutput))
-;;(setq preview-fast-conversion nil)
 
 ;;;; Latex
 (use-package latex
@@ -941,16 +987,8 @@
 
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
 
-;; Mainstream, highly readable font with excellent metrics
 (set-face-attribute 'default nil
-                    :family "Adwaita Mono"
                     :height 180)
-
-;; Keeps code blocks and tables perfectly matched to the default prose size
-(set-face-attribute 'fixed-pitch nil
-                    :family "Adwaita Mono"
-                    :height 180)
-
 ;; Italics for comments
 (custom-set-faces
  '(font-lock-comment-face ((t (:slant italic)))))
@@ -1029,6 +1067,8 @@
 (setq reb-re-syntax 'string)
 
 (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
+
+(setq ispell-alternate-dictionary "/usr/share/dict/words")
 
 ;;; Treesitter
 (setq treesit-language-source-alist
