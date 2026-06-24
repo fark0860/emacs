@@ -17,10 +17,10 @@
    '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
 			   evil-collection evil-nerd-commenter flash general
 			   gnuplot julia-repl julia-ts-mode laas magit marginalia
-			   markdown-mode minions mood-line nov orderless org-roam
+			   markdown-mode minions nov orderless org-roam
 			   org-superstar pdf-tools toc-org treesit-auto vertico
 			   vundo yasnippet-capf yasnippet-snippets zoxide))
- '(preview-scale-function 1.0))
+ '(preview-scale-function 1.0 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

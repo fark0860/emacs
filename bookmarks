@@ -1,8 +1,14 @@
-;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8; mode: lisp-data -*-
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("calc: Solving a over determined matrix (Has more equations than variables)"
+(("config emacs"
+ (filename . "~/.emacs.d/config.org")
+ (front-context-string . "ault-process 'dv")
+ (rear-context-string . "review-latex-def")
+ (position . 36677)
+ (last-modified 27195 23419 439158 806000))
+("calc: Solving a over determined matrix (Has more equations than variables)"
  (front-context-string . "or you compute i")
  (rear-context-string . "hat the ‘X’ vect")
  (position . 115028)
@@ -19,11 +25,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-agenda/TODO.org")
- (front-context-string . "** TODO  Learn a")
- (rear-context-string . "ress \"C-c c t\")\n")
- (position . 64)
- (last-modified 27164 29040 798931 617000))
+ (filename . "~/org-notes/20260622131039-barton_zweibach.org")
+ (front-context-string . "\n#+filetags: Qua")
+ (rear-context-string . "Barton Zweibach\n")
+ (position . 93)
+ (last-modified 27192 59165 509589 722000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")

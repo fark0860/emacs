@@ -1,55 +1,90 @@
 ;; Initialize the built-in package manager
-(require 'package)
+  (require 'package)
 
-;; Configure package archives
-(setq package-archives '(("melpa" . "https://melpa.org/packages/")
-                         ("elpa"  . "https://elpa.gnu.org/packages/")))
+  ;; Configure package archives
+(setq package-archives 
+      '(("melpa"        . "https://melpa.org/packages/")
+        ("melpa-stable" . "https://stable.melpa.org/packages/")
+        ("elpa"         . "https://elpa.gnu.org/packages/")))
 
-;; Initialize and optionally refresh archives
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+(setq package-archive-priorities
+      '(("melpa"        . 30)
+	  ("melpa-stable" . 20)
+        ("elpa"         . 10)))
+  ;; Initialize and optionally refresh archives
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
 
-(require 'use-package)
-;; Force use-package to install missing packages via package.el by default
-(setq use-package-always-ensure t)
+  (require 'use-package)
+  ;; Force use-package to install missing packages via package.el by default
+  (setq use-package-always-ensure t)
+  (setq use-package-compute-statistics t)
+  ;; Configure built-in Emacs features
+  (use-package emacs
+    :ensure nil
+    :config
+    (setq ring-bell-function #'ignore))
 
-;; Configure built-in Emacs features
-(use-package emacs
-  :ensure nil
-  :config
-  (setq ring-bell-function #'ignore))
+(setq modus-themes-common-palette-overrides
+      '((comment "#888888")))
+;; (load-theme 'modus-operandi-tinted t)
+
+(use-package auto-dark
+  :ensure t
+  :demand t
+  :custom
+  ;; Dark mode → modus-vivendi; Light mode → modus-operandi
+  (auto-dark-themes '((modus-vivendi) (modus-operandi-tinted)))
+  ;; How often to check for system theme change (in seconds)
+  (auto-dark-polling-interval-seconds 5)
+  ;; Don’t use AppleScript or PowerShell 
+  (auto-dark-allow-osascript nil)
+  (auto-dark-allow-powershell nil)
+  ;; Optional: only if you know what you're doing
+  ;; (auto-dark-detection-method nil)
+  :hook
+  (auto-dark-dark-mode
+   . (lambda ()
+       (message "Switched to dark theme ☪")))
+  (auto-dark-light-mode
+   . (lambda ()
+       (message "Switched to light theme ☼")))
+  :init
+  (auto-dark-mode))
 
 (use-package minions 
   :ensure t
   :hook (after-init . minions-mode)
   :custom (minions-mode-line-lighter " ⚙"))
 
-(use-package mood-line
-  :ensure t
-  :config
-  (mood-line-mode 1)
-
-  (defun my-mood-line-segment-minions ()
-    "Render the minions major and minor mode menu into a flat string."
-    (format-mode-line minions-mode-line-modes))
-
-  ;; Redefine the mood-line layout
-  (setq mood-line-format
-        (mood-line-defformat
-         :left
-         (((mood-line-segment-modal)             . " ")
-          ((mood-line-segment-buffer-status)     . "")
-          ((mood-line-segment-buffer-name)       . "  ")
-          ((mood-line-segment-cursor-position)   . ""))
+;; (use-package mood-line
+;;   :ensure t
+;;   :config
+;;   (mood-line-mode 1)
+  
+;;   (defun my-mood-line-segment-minions ()
+;;     "Render the minions major and minor mode menu into a flat string."
+;;     (format-mode-line minions-mode-line-modes))
+  
+;;   ;; Redefine the mood-line layout
+;;   (setq mood-line-format
+;;         (mood-line-defformat
+;;          :left
+;;          (((mood-line-segment-modal)             . " ")
+;;           ((mood-line-segment-buffer-status)     . "")
+;;           ((mood-line-segment-buffer-name)       . "  ")
+;;           ((mood-line-segment-cursor-position)   . ""))
          
-         :right
-         (;; Major and minor modes moved here
-          ((my-mood-line-segment-minions)        . "  ")
-          ((mood-line-segment-scroll)            . " ")
-          ((mood-line-segment-process)           . " ")
-          ((mood-line-segment-vc)                . "  ")
-          ((mood-line-segment-checker)           . "")))))
+;;          :right
+;;          (;; Major and minor modes moved here
+;;           ((my-mood-line-segment-minions)        . "  ")
+;;           ((mood-line-segment-scroll)            . " ")
+;;           ((mood-line-segment-process)           . " ")
+;;           ((mood-line-segment-vc)                . "  ")
+;;           ((mood-line-segment-checker)           . "")))))
+
+(set-face-attribute 'mode-line nil :height 0.7)
 
 ;;; Evil Package Vim Bindings
 (use-package evil
@@ -89,29 +124,6 @@
       "o" 'Info-menu))
 
   (evil-set-initial-state 'package-menu-mode 'normal)
-
-(use-package auto-dark
- :ensure t
- :demand t
- :custom
- ;; Dark mode → modus-vivendi; Light mode → modus-operandi
- (auto-dark-themes '((modus-vivendi) (modus-operandi)))
- ;; How often to check for system theme change (in seconds)
- (auto-dark-polling-interval-seconds 5)
- ;; Don’t use AppleScript or PowerShell 
- (auto-dark-allow-osascript nil)
- (auto-dark-allow-powershell nil)
- ;; Optional: only if you know what you're doing
- ;; (auto-dark-detection-method nil)
- :hook
- (auto-dark-dark-mode
-  . (lambda ()
-      (message "Switched to dark theme ☪")))
- (auto-dark-light-mode
-  . (lambda ()
-      (message "Switched to light theme ☼")))
- :init
- (auto-dark-mode))
 
 (use-package evil-nerd-commenter
   :ensure t
@@ -243,7 +255,7 @@
   ;; Use Consult to select xref locations with preview
   (setq xref-show-xrefs-function #'consult-xref
         xref-show-definitions-function #'consult-xref)
-  
+  (setq nov-unzip-args '("-qq" "-od" directory filename))   
   ;; Configure other variables and modes in the :config section,
   ;; after lazily loading the package.
   :config
@@ -271,6 +283,7 @@
   ;; Optionally make narrowing help available in the minibuffer.
   ;; You may want to use `embark-prefix-help-command' or which-key instead.
   ;; (keymap-set consult-narrow-map (concat consult-narrow-key " ?") #'consult-narrow-help)
+  (add-to-list 'consult-preview-excluded-files "\\.epub\\'")
   )
 
 ;;;; Consudlt Directory integration
@@ -328,6 +341,7 @@
   ;;;; Yasnippet
 (use-package yasnippet
   :ensure t
+  :defer t
   :config
   (yas-global-mode 1))  ;; Enable Yasnippet globally
 
@@ -385,6 +399,10 @@
 			nov-mode-hook) . (lambda ()
                                  (local-set-key (kbd "C-c d d") 'wordnet-overview)
 							   (local-set-key (kbd "C-c d D") 'wordnet-full))))
+
+(use-package my-incognito-mode
+:ensure nil ; Tell use-package not to look for this on MELPA/ELPA
+:commands my/incognito-mode)
 
 (setq dired-listing-switches "-Al --group-directories-first -v") ;; Set default dired view
 (add-hook 'dired-mode-hook #'dired-hide-details-mode)
@@ -478,25 +496,6 @@
   (define-key nov-mode-map (kbd "C-c d D") 'wordnet-full)
   (require 'nov-consult)
   (define-key nov-mode-map (kbd "C-s") 'nov-consult-search))
-
-;;; Flash
-  ;; (use-package flash
-  ;;   :commands (flash-jump flash-jump-continue
-  ;; 						flash-treesitter)
-  ;;   :bind ("C-c s" . flash-jump)
-  ;;   :custom
-  ;;   (flash-multi-window t)
-  ;;   (flash-char-jump-labels t)
-  ;;   :init
-  ;;   ;; Evil integration (simple setup)
-  ;;   (with-eval-after-load 'evil
-  ;;     (require 'flash-evil)
-  ;;     (flash-evil-setup t))  ; t = also set up f/t/F/T char motions
-  ;;   ;; (setq flash-char-jump-labels t)
-  ;;   :config
-  ;;   ;; Search integration (labels during C-s, /, ?)
-  ;;   (require 'flash-isearch)
-  ;;   (flash-isearch-mode 1))
 
 (use-package flash
   :commands (flash-jump flash-jump-continue flash-treesitter)
@@ -723,7 +722,7 @@
   (define-key orgtbl-mode-map (kbd "C-c C-x") #'org-table-align))
 
 ;;; Magit
-(use-package transient :ensure t) ;; TODO investigate confilct with internal transient package 
+;; (use-package transient :ensure t) ;; TODO investigate confilct with internal transient package 
 (use-package magit
   :defer t
   :ensure t)
@@ -735,96 +734,119 @@
   :ensure t)
 
 ;;; My Functions for Emacs  
-;;;; Mode Line Toggle
-(defvar-local my--saved-mode-line-format mode-line-format
-  "Backup of the mode line format for the current buffer.")
+  ;;;; Mode Line Toggle
+  (defvar-local my--saved-mode-line-format mode-line-format
+    "Backup of the mode line format for the current buffer.")
 
-(defun my/toggle-mode-line ()
-  "Toggle mode line visibility for the current buffer only."
+  (defun my/toggle-mode-line ()
+    "Toggle mode line visibility for the current buffer only."
+    (interactive)
+    (if mode-line-format
+        (progn
+          (setq my--saved-mode-line-format mode-line-format)
+          (setq mode-line-format nil))
+      (setq mode-line-format my--saved-mode-line-format))
+    (force-mode-line-update)
+    (redraw-display))
+
+  ;;;; Line Number toggle 
+  (defvar-local my--saved-display-line-numbers nil
+    "Internal storage for previous `display-line-numbers` value.")
+
+  (defun my/toggle-line-numbers ()
+    "Toggle line numbers, restoring the previous value when re-enabled."
+    (interactive)
+    (if display-line-numbers
+        ;; Turning OFF
+        (progn
+          (setq my--saved-display-line-numbers display-line-numbers)
+          (setq-local display-line-numbers nil))
+      ;; Turning ON
+      (setq-local display-line-numbers
+                  (or my--saved-display-line-numbers t))))
+
+  ;;;; Reading / Zen Mode
+  (defun my/zen-mode ()
+    "Enter or exit a distraction-free zen mode."
+    (interactive)
+    
+    ;; Toggle mode-line
+    (my/toggle-mode-line)
+    
+    ;; Toggle line numbers (state-preserving)
+    (my/toggle-line-numbers))
+
+  ;;;; Dired Sort Function
+  (defun my/dired-sort ()
+    "Sort dired listing interactively."
+    (interactive)
+    (let ((sort-options
+           '(("date" . "-Al -t")                    ; newest first
+             ("size" . "-Al -S")                    ; biggest first
+             ("name" . "-Al --group-directories-first -v")  ; human-readable name sort
+             ("dir"  . "-Al --group-directories-first")))  ; dirs first, then natural sort
+          choice
+          ls-switches)
+      (setq choice (completing-read "Sort by (default date): "
+                                    sort-options nil t nil nil "date"))
+      (setq ls-switches (cdr (assoc choice sort-options)))
+      (dired-sort-other ls-switches)))
+
+
+  ;;;; Get Dired Directory Size 
+  (defun my/dired-get-size ()
+    "Get total size of all marked files/folders in dired"
+    (interactive)
+    (let ((files (dired-get-marked-files)))
+      (with-temp-buffer
+        (apply 'call-process "/usr/bin/du" nil t nil "-sch" files)
+        (message "Size of all marked files: %s"
+                 (progn 
+                   (re-search-backward "\\(^[0-9.,]+[A-Za-z]+\\).*total$")
+                   (match-string 1))))))
+
+
+  (with-eval-after-load 'dired
+    (define-key dired-mode-map (kbd "?") #'my/dired-get-size))
+
+  (add-hook 'dired-mode-hook
+            (lambda ()
+              (evil-define-key 'normal dired-mode-map (kbd "?") #'my/dired-get-size)))
+
+
+  ;;; Consult Preview For Any buffer  
+  (defun my/consult-preview ()
+    "Preview the current Vertico candidate temporarily, mimicking native consult previews."
+    (interactive)
+    ;; Ensure we are in a Vertico/Completing-read session
+    (when-let* ((state (and (bound-and-true-p vertico--input)
+                            (consult--file-preview))))
+      (save-selected-window
+        ;; Retrieve the currently selected candidate string from Vertico
+        (let ((candidate (vertico--candidate)))
+          ;; Execute the preview function with the candidate path
+          (funcall state 'preview candidate)))))
+
+  (define-key minibuffer-local-map (kbd "M-p") #'my/consult-preview)
+
+
+;;;; set temporary keybindings  
+(defun my/set-temporary-keybind ()
+  "Interactively bind any key sequence to any command on the fly."
   (interactive)
-  (if mode-line-format
-      (progn
-        (setq my--saved-mode-line-format mode-line-format)
-        (setq mode-line-format nil))
-    (setq mode-line-format my--saved-mode-line-format))
-  (force-mode-line-update)
-  (redraw-display))
+  (let* ((key-seq (read-key-sequence "Press temporary key sequence: "))
+         ;; Format the key sequence safely to present to the user for confirmation
+         (key-str (key-description key-seq))
+         (confirm (y-or-n-p (format "Confirm binding for [%s]? " key-str))))
+    (if (not confirm)
+        (message "Aborted.")
+      (let ((cmd (read-command (format "Select command for [%s]: " key-str))))
+        (when cmd
+          (global-set-key key-seq cmd)
+          (message "Successfully bound [%s] to '%s'" key-str cmd))))))
 
-;;;; Line Number toggle 
-(defvar-local my--saved-display-line-numbers nil
-  "Internal storage for previous `display-line-numbers` value.")
-
-(defun my/toggle-line-numbers ()
-  "Toggle line numbers, restoring the previous value when re-enabled."
-  (interactive)
-  (if display-line-numbers
-      ;; Turning OFF
-      (progn
-        (setq my--saved-display-line-numbers display-line-numbers)
-        (setq-local display-line-numbers nil))
-    ;; Turning ON
-    (setq-local display-line-numbers
-                (or my--saved-display-line-numbers t))))
-
-;;;; Reading / Zen Mode
-(defun my/zen-mode ()
-  "Enter or exit a distraction-free zen mode."
-  (interactive)
-  
-  ;; Toggle mode-line
-  (my/toggle-mode-line)
-  
-  ;; Toggle line numbers (state-preserving)
-  (my/toggle-line-numbers))
-
-;;;; Dired Sort Function
-(defun my/dired-sort ()
-  "Sort dired listing interactively."
-  (interactive)
-  (let ((sort-options
-         '(("date" . "-Al -t")                    ; newest first
-           ("size" . "-Al -S")                    ; biggest first
-           ("name" . "-Al --group-directories-first -v")  ; human-readable name sort
-           ("dir"  . "-Al --group-directories-first")))  ; dirs first, then natural sort
-        choice
-        ls-switches)
-    (setq choice (completing-read "Sort by (default date): "
-                                  sort-options nil t nil nil "date"))
-    (setq ls-switches (cdr (assoc choice sort-options)))
-    (dired-sort-other ls-switches)))
-
-
-;;;; Get Dired Directory Size 
-(defun my/dired-get-size ()
-  "Get total size of all marked files/folders in dired"
-  (interactive)
-  (let ((files (dired-get-marked-files)))
-    (with-temp-buffer
-      (apply 'call-process "/usr/bin/du" nil t nil "-sch" files)
-      (message "Size of all marked files: %s"
-               (progn 
-                 (re-search-backward "\\(^[0-9.,]+[A-Za-z]+\\).*total$")
-                 (match-string 1))))))
-
-
-(with-eval-after-load 'dired
-  (define-key dired-mode-map (kbd "?") #'my/dired-get-size))
-
-(add-hook 'dired-mode-hook
-          (lambda ()
-            (evil-define-key 'normal dired-mode-map (kbd "?") #'my/dired-get-size)))
-
-
-;;; Consult Preview For Any buffer  
-(defun my/consult-preview ()
-  "Previews candidate in vertico buffer, unless it's a consult command"
-  (interactive)
-  (unless (bound-and-true-p consult--preview-function)
-    (save-selected-window
-      (let ((embark-quit-after-action nil))
-        (embark-dwim)))))
-
-(define-key minibuffer-local-map (kbd "M-p") #'my/consult-preview)
+;; Bind this launcher to a convenient starting key
+(global-set-key (kbd "C-c K") #'my/set-temporary-keybind)
 
 (setq org-src-window-setup 'current-window)  ;; edits in the current window
 
@@ -835,101 +857,164 @@
   :commands toc-org-enable
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 
-;;; Org
 (use-package org
   :defer t
-  :hook (org-mode . (lambda ()
-                      (org-indent-mode)
-                      (setq-local electric-pair-inhibit-predicate
-                                  (lambda (c)
-                                    (if (char-equal c ?<)
-                                        t
-                                      (electric-pair-default-inhibit c))))))
+
+  :preface
+  (require 'cl-lib)
+
+  (defun my/resize-org-latex-overlays ()
+    "Rescale existing SVG LaTeX previews after text scaling without busting disk cache."
+    (let* ((zoom-factor (expt text-scale-mode-step text-scale-mode-amount))
+           (base-scale 1.0)
+           (target-scale (* base-scale zoom-factor)))
+      (cl-loop
+       for o in (append (car (overlay-lists))
+                        (cdr (overlay-lists)))
+       when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+       do
+       (let ((display (overlay-get o 'display)))
+         (when (and (consp display)
+                    (eq (car display) 'image))
+           (plist-put (cdr display) :scale target-scale))))))
+
+  (defun my/org-latex-preview-toggle ()
+    "Toggle LaTeX previews using cached SVGs, scaling them to the current zoom level."
+    (interactive)
+    (let ((previews-exist (cl-some (lambda (o) (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay))
+                                   (append (car (overlay-lists)) (cdr (overlay-lists))))))
+      (if previews-exist
+          (org-latex-preview '(64))
+        (setq-local org-format-latex-options 
+                    (plist-put org-format-latex-options :scale 1.0))
+        (org-latex-preview '(16))
+        (my/resize-org-latex-overlays))))
+
+  :hook
+  ((org-mode . (lambda ()
+                 (org-indent-mode)
+                 (setq-local electric-pair-inhibit-predicate
+                             (lambda (c)
+                               (if (char-equal c ?<)
+                                   t
+                                 (electric-pair-default-inhibit c))))))
+   (org-mode . (lambda ()
+                 (add-hook 'text-scale-mode-hook #'my/resize-org-latex-overlays nil t)))
+   (org-mode . (lambda ()
+                 ;; Locks the scale option to 1.0 buffer-locally whenever an Org file is opened
+                 (setq org-format-latex-options 
+                       (plist-put (plist-put (plist-put org-format-latex-options :foreground nil) 
+                                             :background nil) 
+                                  :scale 1.0)))))
   :config
-  ;; Load languages
-  (org-babel-do-load-languages
-   'org-babel-load-languages
-   '((emacs-lisp . t)
-     (python . t)
-     (octave . t)))
-  ;; Hide leading asterisks in headings
+  ;; Use dvisvgm to generate high-quality SVG vector previews
+  (setq org-preview-latex-default-process 'dvisvgm)
   (setq org-hide-leading-stars t)
-  ;; Pretty entities (nicer symbols)
   (setq org-pretty-entities t)
-  ;; Skip "Execute?" dialog
   (setq org-confirm-babel-evaluate nil)
-  ;; syntax highlighting for LaTex Fragments
   (setq org-highlight-latex-and-related '(latex script entities))
-  ;; Hide emphasis markers (*bold* /italic/ =verbatim= etc.)
   (setq org-hide-emphasis-markers t))
+
+
+
 
 (use-package org-superstar
       :ensure t
       :hook (org-mode . org-superstar-mode)
       :config
-      ;; Hide the trailing mesh of stars, leave only the main bullet
+      ;; hide the trailing mesh of stars, leave only the main bullet
       (setq org-superstar-headline-bullets-list '("⦿")))
 
 (use-package gnuplot
   :ensure t
   :defer t)
 
-;;; Org Link to specific pdf page
+;;; org link to specific pdf page
 (with-eval-after-load 'org
   (setq org-file-apps
-        (append '(("\\.pdf::\\([0-9]+\\)\\'" . "zathura -P %1 %s")
+        (append '(("\\.pdf::\\([0-9]+\\)\\'" . "zathura -p %1 %s")
                   ("\\.pdf\\'" . "zathura %s"))
                 org-file-apps)))
 
-(add-hook 'org-mode-hook #'visual-line-mode) ; Clean line wrapping
+(add-hook 'org-mode-hook #'visual-line-mode) ; clean line wrapping
 
 (defun my/org-font-setup ()
-  "Set distinct weights and scaling factors for Org headings."
-  (set-face-attribute 'org-level-1 nil :height 1.9 :weight 'bold)
-  (set-face-attribute 'org-level-2 nil :height 1.7 :weight 'bold)
-  (set-face-attribute 'org-level-3 nil :height 1.5 :weight 'semi-bold)
-  (set-face-attribute 'org-level-4 nil :height 1.3 :weight 'bold)
-  (set-face-attribute 'org-level-5 nil :height 1.0 :weight 'bold))
+  "set distinct weights and scaling factors for org headings."
+  (set-face-attribute 'org-level-1 nil :height 1.5 :weight 'bold)
+  (set-face-attribute 'org-level-2 nil :height 1.4 :weight 'bold)
+  (set-face-attribute 'org-level-3 nil :height 1.3 :weight 'semi-bold)
+  (set-face-attribute 'org-level-4 nil :height 1.2 :weight 'bold)
+  (set-face-attribute 'org-level-5 nil :height 1.1 :weight 'bold))
 
 (add-hook 'org-mode-hook #'my/org-font-setup)
 
-(setq org-agenda-files '("~/org-agenda/TODO.org"
+(setq org-agenda-files '("~/org-agenda/todo.org"
 						 "~/org-agenda/"))
 
 (setq org-capture-templates
-      '(;; --- TODO.ORG TEMPLATES ---
-        ("t" "Quick Todo" entry 
-         (file+headline "~/org-agenda/TODO.org" "Inbox")
-         "* TODO %?\n  Logged on: %U\n  Context File: [[file:%F]]\n\n  %i")
+      '(;; --- todo.org templates ---
+        ("t" "quick todo" entry 
+         (file+headline "~/org-agenda/todo.org" "inbox")
+         "* todo %?\n  logged on: %u\n  context file: [[file:%f]]\n\n  %i")
       	
-        ("i" "Immediate / Important" entry 
-         (file+headline "~/org-agenda/TODO.org" "Immediate/Important")
-         "* TODO %?\n  SCHEDULED: %t\n  Context File: [[file:%F]]\n\n  %i")
+        ("i" "immediate / important" entry 
+         (file+headline "~/org-agenda/todo.org" "immediate/important")
+         "* todo %?\n  scheduled: %t\n  context file: [[file:%f]]\n\n  %i")
       	
-        ;; --- PROJECTS.ORG TEMPLATES ---
-        ("p" "New Active Project" entry 
-         (file+headline "~/org-agenda/projects.org" "Active Projects")
-         "* PROJECT %?\n  Context File: [[file:%F]]\n\n  %i")
+        ;; --- projects.org templates ---
+        ("p" "new active project" entry 
+         (file+headline "~/org-agenda/projects.org" "active projects")
+         "* project %?\n  context file: [[file:%f]]\n\n  %i")
       	
-        ("b" "Project Backlog/Idea" entry 
-         (file+headline "~/org-agenda/projects.org" "Backlog / Pipeline")
-         "* PROJECT %?\n  Logged on: %U")
+        ("b" "project backlog/idea" entry 
+         (file+headline "~/org-agenda/projects.org" "backlog / pipeline")
+         "* project %?\n  logged on: %u")
       	
-        ("n" "Quick Project Note" entry 
-         (file+headline "~/org-agenda/projects.org" "Reference & Resources")
-         "* %?\n  Entered on: %U")
-  		("r" "Remember / Clipboard" entry 
-         (file+headline "~/org-agenda/scratch.org" "Brain Dumps")
-         "* %^{Topic / Title}\n  Logged: %U\n  Context File: [[file:%F]]\n\n  %i")))
+        ("n" "quick project note" entry 
+         (file+headline "~/org-agenda/projects.org" "reference & resources")
+         "* %?\n  entered on: %u")
+  		("r" "remember / clipboard" entry 
+         (file+headline "~/org-agenda/scratch.org" "brain dumps")
+         "* %^{topic / title}\n  logged: %u\n  context file: [[file:%f]]\n\n  %i")))
 
-;; Automatically log the exact date and time when a task is marked DONE
+;; automatically log the exact date and time when a task is marked done
 (setq org-log-done 'time)
-;; Dynamically creates a unique file for every archived project inside an archive folder
-;; Configure Refile (C-c C-w) targets to see up to 3 levels deep across all agenda files
+;; dynamically creates a unique file for every archived project inside an archive folder
+;; configure refile (c-c c-w) targets to see up to 3 levels deep across all agenda files
 (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
-;; Allow refiling to jump straight to the top of a target heading
+;; allow refiling to jump straight to the top of a target heading
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
+
+(defun my/org-insert-image-from-clipboard ()
+"Save the latest image from the Wayland clipboard and insert it as an absolute file link at point."
+(interactive)
+;; Fallback to default directory if the buffer isn't visiting a file
+(let* ((buffer-file (buffer-file-name))
+       (base-dir (if buffer-file
+                     (file-name-directory buffer-file)
+                   default-directory))
+       (images-dir (expand-file-name "images" base-dir))
+       (base-name (if buffer-file
+                      (file-name-sans-extension (file-name-nondirectory buffer-file))
+                    "clipboard"))
+       (file-name (format "%s-%s.png" base-name (cl-random (expt 2 31))))
+       (dest-path (expand-file-name file-name images-dir)))
+  
+  ;; Ensure the images directory exists locally
+  (unless (file-exists-p images-dir)
+    (make-directory images-dir t))
+  
+  ;; Dump clipboard data via wl-paste
+  (let ((wl-exit (call-process-shell-command (format "wl-paste -t image/png > %s" dest-path))))
+    (if (= wl-exit 0)
+        (progn
+          ;; Inserts an absolute file link: [[file:/path/to/images/file.png]]
+          (insert (format "[[file:%s]]" dest-path))
+          ;; Optional: Refresh inline images automatically if they are already toggled on
+          (when (bound-and-true-p org-inline-images-mode)
+            (org-display-inline-images)))
+      (message "No image found in clipboard.")))))
 
 (use-package org-roam
   :defer t
@@ -941,13 +1026,13 @@
          ("C-c n g" . org-roam-graph)
          ("C-c n i" . org-roam-node-insert)
          ("C-c n c" . org-roam-capture)
-         ;; Dailies
+         ;; dailies
          ("C-c n j" . org-roam-dailies-capture-today))
   :config
-  ;; If you're using a vertical completion framework, you might want a more informative completion interface
+  ;; if you're using a vertical completion framework, you might want a more informative completion interface
   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
   (org-roam-db-autosync-mode)
-  ;; If using org-roam-protocol
+  ;; if using org-roam-protocol
   (require 'org-roam-protocol)
   (setq org-link-frame-setup
 		'((file . find-file))))
@@ -980,9 +1065,9 @@
 
 (setq make-backup-files nil)
 
-;; Always use vertical split for diffs
+;; always use vertical split for diffs
 (setq ediff-split-window-function #'split-window-horizontally)
-;; Never create a new frame for the control panel
+;; never create a new frame for the control panel
 (setq ediff-window-setup-function #'ediff-setup-windows-plain)
 
 (global-set-key [remap dabbrev-expand] 'hippie-expand)
@@ -1003,14 +1088,15 @@
 
 (setq scroll-step 1)
 (setq scroll-conservatively 10000)
+(setq pixel-scroll-precision-mode t)
 ;; Keep a margin of 3 lines at the top/bottom before scrolling starts
 (setq scroll-margin 3)
 
 (setq use-dialog-box nil)
 
-(save-place-mode 1)
-
 (desktop-save-mode -1)
+
+(save-place-mode 1)
 
 (global-auto-revert-mode 1)
 ;; Helpful to load changed files in dired
@@ -1069,6 +1155,8 @@
 (setq help-window-select t) ;; auto shift focus when C-h <v,f,m>
 
 (setq ispell-alternate-dictionary "/usr/share/dict/words")
+
+(setq shr-color nil)
 
 ;;; Treesitter
 (setq treesit-language-source-alist
@@ -1134,10 +1222,42 @@
             ("Europe/Paris" "France"))))
 
 ;;; World CLock
-(use-package zoxide
-  :ensure t
-  :init
-  (global-set-key (kbd "C-x C-j") 'zoxide-find-file))
+  (use-package zoxide
+    :ensure t
+    :init
+    (global-set-key (kbd "C-x C-j") 'zoxide-find-file))
+
+
+;;; Eshell Integration
+(with-eval-after-load 'eshell
+
+(advice-add 'eshell/cd :around
+  (lambda (orig-fun &rest args)
+    "If the target directory does not exist, query zoxide first before changing directory."
+    (let* ((target (car args))
+           (resolved-path (if (and target (file-directory-p target))
+                              target
+                            (when target
+                              ;; Safely quote the argument for the shell query
+                              (let ((query-res (shell-command-to-string 
+                                                (concat "zoxide query " (shell-quote-argument target)))))
+                                (unless (string-match-p "error:" query-res)
+                                  (string-trim query-res))))))
+           (old-path (eshell/pwd)))
+      
+      (apply orig-fun (if resolved-path (list resolved-path) args))
+      
+      (let ((new-path (eshell/pwd)))
+        (when (and old-path new-path (not (string= old-path new-path)))
+          ;; Safely quote the new path when adding to the database
+          (shell-command-to-string (concat "zoxide add " (shell-quote-argument new-path))))))))
+
+(defun eshell/n (dir)
+  "Navigate to a previously visited directory, handling spaces cleanly."
+  (let ((resolved (string-trim (shell-command-to-string 
+                                (concat "zoxide query " (shell-quote-argument dir))))))
+    (eshell/cd resolved)
+    (eshell/ls))))
 
 ;;; Emacs Specifc Binidngs 
 (global-set-key (kbd "C-=") 'text-scale-increase)
@@ -1152,6 +1272,8 @@
 (global-set-key (kbd "C-x C-z") #'my/zen-mode)
 (global-set-key (kbd "C-c e") #'evil-mode)
 (global-set-key (kbd "C-c w w") #'delete-other-windows)
+(global-set-key (kbd "C-c w =") #'balance-windows)
+(global-set-key (kbd "C-c w o") #'other-window)
 (global-set-key (kbd "C-c w m") #'maximize-window)
 (global-set-key (kbd "C-c w M") #'balance-windows)
 (global-set-key (kbd "C-c w u") 'winner-undo)
@@ -1205,7 +1327,7 @@
     "bk"  #'kill-current-buffer
     "bs"  #'save-buffer
     "ib"  #'ibuffer
-
+	
     
     ;; Yank
     "yy"  #'consult-yank-from-kill-ring
@@ -1271,7 +1393,7 @@
     "oc" #'org-capture
     "nf" #'org-roam-node-find
     )
-
+  
   (general-define-key
    :states '(normal)
    "K" #'eldoc-box-help-at-point
@@ -1306,7 +1428,8 @@
     "ox" #'org-toggle-checkbox
     "th" #'org-toggle-heading
     "co" #'org-open-at-point
-    "lp" #'org-latex-preview
+    "lpp" #'org-latex-preview
+    "lpb" #'my/org-latex-preview-toggle
     "tc" #'org-table-create-or-convert-from-region
     "t-" #'org-ctrl-c-minus
     "os" #'org-sort
@@ -1314,13 +1437,13 @@
     "nl" #'org-roam-buffer-toggle
     "oo" #'org-open-at-point
     "ol" #'org-insert-link
-    "lt" #'org-insert-link
+    "li" #'org-insert-link
     "ti" #'org-toggle-inline-images
     "tt" #'org-todo
     "ts" #'org-schedule
     "ts" #'org-schedule
     "td" #'org-deadline
-	
+  	
     )
   
   (my-leader-def
@@ -1341,28 +1464,28 @@
     "ce" #'julia-repl-send-line)
   
   (my-leader-def
-	:keymaps 'octave-mode-map
-	:states '(normal visual)
-	"co" #'run-octave
-	"cc" #'octave-send-buffer
-	"cr" #'octave-send-region
-	"cf" #'octave-send-defun
-	"cs" #'octave-show-process-buffer
-	"cb" #'octave-send-block
-	"ck" #'octave-kill-process
-	"ce" #'octave-send-line
-	"cq" #'octave-hide-process-buffer)
-
-(my-leader-def
-  :keymaps '(text-mode-map 
-             markdown-mode-map 
-             tex-mode-map 
-             LaTeX-mode-map 
-             org-mode-map)
-  :states '(normal visual motion emacs nov)
-  "Dd" #'wordnet-overview
-  "DD" #'wordnet-full)
-
+  	:keymaps 'octave-mode-map
+  	:states '(normal visual)
+  	"co" #'run-octave
+  	"cc" #'octave-send-buffer
+  	"cr" #'octave-send-region
+  	"cf" #'octave-send-defun
+  	"cs" #'octave-show-process-buffer
+  	"cb" #'octave-send-block
+  	"ck" #'octave-kill-process
+  	"ce" #'octave-send-line
+  	"cq" #'octave-hide-process-buffer)
+  
+  (my-leader-def
+    :keymaps '(text-mode-map 
+               markdown-mode-map 
+               tex-mode-map 
+               LaTeX-mode-map 
+               org-mode-map)
+    :states '(normal visual motion emacs nov)
+    "Dd" #'wordnet-overview
+    "DD" #'wordnet-full)
+  
   (my-leader-def
     :keymaps 'LaTeX-mode-map
     :states '(normal)
@@ -1378,7 +1501,7 @@
     "ls"  #'LaTeX-section
     "lm"  #'TeX-insert-macro
     
-	
+  	
     ;; calc
     "cm" #'latex-math-from-calc
     ;; Preview
@@ -1393,10 +1516,10 @@
     "rl"  #'reftex-label
     "rc"  #'reftex-citation
     "rt"  #'reftex-toc)
-
-
   
-  ;;; Latex
+  
+  
+    ;;; Latex
   (my-leader-def
     :keymaps 'LaTeX-mode-map
     :states '(visual)
@@ -1409,5 +1532,10 @@
    "<tab>" #'org-cycle
    "TAB"   #'org-cycle)
   )
+(general-define-key
+ :keymaps 'dired-mode-map
+ :states 'normal
+ :defer t
+ "i" 'evil-insert)
 
 
