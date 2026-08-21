@@ -1,6 +1,7 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq package-enable-at-startup nil)
 ;; Set the theme before the GUI loads to avoid flash
+(load-theme 'modus-vivendi t)
 (setq custom-safe-themes t)
 ;; (load-theme 'modus-vivendi t)
 (global-set-key (kbd "C-h C-t") #'modus-themes-toggle)

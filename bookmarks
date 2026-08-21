@@ -2,12 +2,48 @@
 ;;; This format is meant to be slightly human-readable;
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
-(("config emacs"
+(("agenda-dump"
+ (filename . "~/org-agenda/dump.org")
+ (front-context-string . "* Ideas\n** TODO ")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 27202 3317 173591 824000))
+("agenda-phd"
+ (filename . "~/org-agenda/phd-applications.org")
+ (front-context-string . "\n\n** Germany \n\n*")
+ (rear-context-string . "2026-06-28 Sun]\n")
+ (position . 45)
+ (last-modified 27200 48880 521680 825000))
+("agenda-remember"
+ (filename . "~/org-agenda/remember.org")
+ (front-context-string . "* Emacs Editing ")
+ (rear-context-string)
+ (position . 1)
+ (last-modified 27200 44687 706964 129000))
+("agenda-todo"
+ (filename . "~/org-agenda/todo.org")
+ (front-context-string . "xer\n  3. HAirban")
+ (rear-context-string . "reen Tea\n  2. Bo")
+ (position . 111)
+ (last-modified 27200 43850 330631 263000))
+("org-capture-last-stored-marker"
+ (filename . "~/org-agenda/todo.org")
+ (front-context-string . "*** TODO \n  Logg")
+ (rear-context-string . "2026-08-16 Sun]\n")
+ (position . 120)
+ (last-modified 27261 33491 280235 384000))
+("org-refile-last-stored"
+ (filename . "~/org-agenda/todo.org")
+ (front-context-string . "*** TODO \n  Logg")
+ (rear-context-string . "2026-08-16 Sun]\n")
+ (position . 120)
+ (last-modified 27261 33491 279696 944000))
+("config emacs"
  (filename . "~/.emacs.d/config.org")
- (front-context-string . "ault-process 'dv")
- (rear-context-string . "review-latex-def")
- (position . 36677)
- (last-modified 27195 23419 439158 806000))
+ (front-context-string . " EVIL Mode Keybi")
+ (rear-context-string . "  \n#+end_src\n\n**")
+ (position . 56384)
+ (last-modified 27257 30401 885176 737000))
 ("calc: Solving a over determined matrix (Has more equations than variables)"
  (front-context-string . "or you compute i")
  (rear-context-string . "hat the ‘X’ vect")
@@ -25,11 +61,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-notes/20260622131039-barton_zweibach.org")
- (front-context-string . "\n#+filetags: Qua")
- (rear-context-string . "Barton Zweibach\n")
- (position . 93)
- (last-modified 27192 59165 509589 722000))
+ (filename . "~/org-notes/20260818000834-emacs_calc.org")
+ (front-context-string . "#+filetags: :cal")
+ (rear-context-string . "tle: Emacs Calc\n")
+ (position . 88)
+ (last-modified 27267 21850 73531 429000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: Dabbrev Create Global Map
+# key: Dabbrev
+# --
+(define-abbrev global-abbrev-table
+"${1:abbreviation}"
+"${2:expands to}")

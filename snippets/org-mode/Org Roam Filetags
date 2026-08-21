@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org Roam Filetags
+# key: ;ft
+# --
+#+filetags: :${1:Tags}

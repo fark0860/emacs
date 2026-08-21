@@ -10,16 +10,17 @@
  '(inhibit-startup-screen t)
  '(nov-text-width nil)
  '(org-format-latex-options
-   '(:foreground default :background default :scale 1.3 :html-foreground
-				 "Black" :html-background "Transparent" :html-scale
-				 1.0 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
+   '(:foreground nil :background nil :scale 1.0 :html-foreground "Black"
+				 :html-background "Transparent" :html-scale 1.0
+				 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
  '(package-selected-packages
    '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
-			   evil-collection evil-nerd-commenter flash general
-			   gnuplot julia-repl julia-ts-mode laas magit marginalia
-			   markdown-mode minions nov orderless org-roam
-			   org-superstar pdf-tools toc-org treesit-auto vertico
-			   vundo yasnippet-capf yasnippet-snippets zoxide))
+			   evil-collection evil-escape evil-nerd-commenter flash
+			   general ghostel gnuplot julia-repl julia-ts-mode laas
+			   magit marginalia markdown-mode minions mood-line nov
+			   orderless org-roam org-superstar toc-org transient
+			   treesit-auto vertico vundo with-editor yasnippet-capf
+			   yasnippet-snippets zoxide))
  '(preview-scale-function 1.0 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

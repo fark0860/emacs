@@ -1,0 +1,5 @@
+# -*- mode: snippet -*-
+# name: Org Table Calculate 
+# key: ;tf
+# --
+#+TBLFM: ${1: @=row, $=column}

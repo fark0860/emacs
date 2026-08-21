@@ -1,0 +1,6 @@
+# key: #ddg
+# name: Dabbrev Create Global Map
+# --
+(define-abbrev global-abbrev-table
+"${1:abbreviation}"
+"${2:expands to}")
