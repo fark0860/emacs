@@ -17,9 +17,9 @@
    '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
 			   evil-collection evil-escape evil-nerd-commenter flash
 			   general ghostel gnuplot julia-repl julia-ts-mode laas
-			   magit marginalia markdown-mode minions mood-line nov
-			   orderless org-roam org-superstar toc-org transient
-			   treesit-auto vertico vundo with-editor yasnippet-capf
+			   magit marginalia markdown-mode minions nov orderless
+			   org-roam org-superstar toc-org transient treesit-auto
+			   vertico vundo with-editor yasnippet-capf
 			   yasnippet-snippets zoxide))
  '(preview-scale-function 1.0 t))
 (custom-set-faces

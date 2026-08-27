@@ -168,31 +168,31 @@ Probably faster than the default moed line
     :hook (after-init . minions-mode)
     :custom (minions-mode-line-lighter " ⚙"))
 
-  (use-package mood-line
-    :ensure t
-    :config
-    (mood-line-mode 1)
+  ;; (use-package mood-line
+  ;;   :ensure t
+  ;;   :config
+  ;;   (mood-line-mode 1)
     
-    (defun my-mood-line-segment-minions ()
-      "Render the minions major and minor mode menu into a flat string."
-      (format-mode-line minions-mode-line-modes))
+  ;;   (defun my-mood-line-segment-minions ()
+  ;;     "Render the minions major and minor mode menu into a flat string."
+  ;;     (format-mode-line minions-mode-line-modes))
     
-    ;; Redefine the mood-line layout
-    (setq mood-line-format
-          (mood-line-defformat
-           :left
-           (((mood-line-segment-modal)             . " ")
-            ((mood-line-segment-buffer-status)     . "")
-            ((mood-line-segment-buffer-name)       . "  ")
-            ((mood-line-segment-cursor-position)   . ""))
+  ;;   ;; Redefine the mood-line layout
+  ;;   (setq mood-line-format
+  ;;         (mood-line-defformat
+  ;;          :left
+  ;;          (((mood-line-segment-modal)             . " ")
+  ;;           ((mood-line-segment-buffer-status)     . "")
+  ;;           ((mood-line-segment-buffer-name)       . "  ")
+  ;;           ((mood-line-segment-cursor-position)   . ""))
            
-           :right
-           (;; Major and minor modes moved here
-            ((my-mood-line-segment-minions)        . "  ")
-            ((mood-line-segment-scroll)            . " ")
-            ((mood-line-segment-process)           . " ")
-            ((mood-line-segment-vc)                . "  ")
-            ((mood-line-segment-checker)           . "")))))
+  ;;          :right
+  ;;          (;; Major and minor modes moved here
+  ;;           ((my-mood-line-segment-minions)        . "  ")
+  ;;           ((mood-line-segment-scroll)            . " ")
+  ;;           ((mood-line-segment-process)           . " ")
+  ;;           ((mood-line-segment-vc)                . "  ")
+  ;;           ((mood-line-segment-checker)           . "")))))
 
 
 #+end_src
@@ -221,25 +221,27 @@ Blasphemy!!!
     (keymap-set evil-visual-state-map "C-z" nil)
     (evil-mode 1))
 
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :init
-    (setq evil-collection-setup-minibuffer t)
-    (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
-    (setq evil-collection-key-blacklist '("SPC"))
-    :config
-    (evil-collection-init)
-    
-    ;; Custom overrides
-    (evil-collection-define-key 'normal 'dired-mode-map
-      "h" 'dired-up-directory
-      "l" 'dired-find-file)
-    
-    (evil-collection-define-key 'normal 'Info-mode-map
-      "h" 'Info-history-back
-      "l" 'Info-history-forward
-      "o" 'Info-menu))
+(use-package evil-collection
+  :ensure t
+  :after (evil)
+  :init
+  (setq evil-collection-setup-minibuffer t)
+  (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
+  (setq evil-collection-key-blacklist '("SPC"))
+  :config
+  (evil-collection-init)
+
+  ;; Custom overrides
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-up-directory
+    "l" 'dired-find-file)
+
+  (evil-collection-define-key 'normal 'Info-mode-map
+    "h" 'Info-history-back
+    "l" 'Info-history-forward
+    "o" 'Info-menu))
+
+(evil-set-initial-state 'package-menu-mode 'normal)
 
   (evil-set-initial-state 'package-menu-mode 'normal)
 
@@ -489,8 +491,7 @@ This section configures the LSP and completion setup:
     (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
     (global-corfu-mode)
     (corfu-popupinfo-mode)
-    (corfu-history-mode)
-    (evil-collection-corfu-setup))
+    (corfu-history-mode))
 
 
     ;;; Snippets
@@ -1809,484 +1810,486 @@ Using Emacs-Style keybindings
 ** EVIL Mode Keybindings
 
 #+begin_src emacs-lisp
-            ;;; General Keybindings
           ;;; General Keybindings
-    (use-package general
-      :ensure t
-      :config
-      (general-evil-setup t)
+        ;;; General Keybindings
+  (use-package general
+    :ensure t
+    :config
+    (general-evil-setup t)
+    
+    (general-create-definer my-leader-def
+      :states '(normal visual motion emacs)
+      :keymaps 'override
+      :prefix "SPC")
+
+    (general-create-definer my-local-leader-def
+      :states '(normal visual motion emacs)
+      :keymaps 'override
+      :prefix "SPC SPC")
+    
+    ;; 1. Setup the window resizing repeat map
+    (defvar-keymap my-window-resize-repeat-map
+      :doc "Repeat map for window resizing."
+      "<left>"  #'shrink-window-horizontally
+      "<right>" #'enlarge-window-horizontally
+      "<up>"    #'enlarge-window
+      "<down>"  #'shrink-window)
+
+    (put #'shrink-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
+    (put #'enlarge-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
+    (put #'enlarge-window              'repeat-map 'my-window-resize-repeat-map)
+    (put #'shrink-window               'repeat-map 'my-window-resize-repeat-map)
+
+    ;; 2. Window Navigation Repeat Map (New addition)
+    (defvar-keymap my-window-navigate-repeat-map
+      :doc "Repeat map for window navigation."
+      "<left>"  #'windmove-left
+      "<right>" #'windmove-right
+      "<up>"    #'windmove-up
+      "<down>"  #'windmove-down)
+
+    (put #'windmove-left  'repeat-map 'my-window-navigate-repeat-map)
+    (put #'windmove-right 'repeat-map 'my-window-navigate-repeat-map)
+    (put #'windmove-up    'repeat-map 'my-window-navigate-repeat-map)
+    (put #'windmove-down  'repeat-map 'my-window-navigate-repeat-map)
+
+    (repeat-mode 1)
+    
+    (my-leader-def
+      ;; Core
+      "!" 'shell-command
+      "1" 'shell-command
+      "2" 'eshell
+      "@" 'eshell-command
+      "3" 'ghostel
+      "#" 'ghostel-other
+      "TAB" #'indent-region
+      "5" (lambda () (interactive) (load-file user-init-file))
+      "8" 'calc
+      "*" 'quick-calc
+
+      ;; Mode-specific dynamic rebindings (maps to C-c sequences)
+      "oo" (kbd "C-c C-o")
+      "cc" (kbd "C-c C-c")
       
-      (general-create-definer my-leader-def
-        :states '(normal visual motion emacs)
-        :keymaps 'override
-        :prefix "SPC")
-
-      (general-create-definer my-local-leader-def
-        :states '(normal visual motion emacs)
-        :keymaps 'override
-        :prefix "SPC SPC")
+      ;;Execute/Evaluate
+      "xx" #'eval-buffer
+      "xs" #'eval-last-sexp
+      "xr" #'eval-region
+      "xd" #'eval-defun
+      "xe" #'eval-expression
+      "xp" #'eval-print-last-sexp
       
-      ;; 1. Setup the window resizing repeat map
-      (defvar-keymap my-window-resize-repeat-map
-        :doc "Repeat map for window resizing."
-        "<left>"  #'shrink-window-horizontally
-        "<right>" #'enlarge-window-horizontally
-        "<up>"    #'enlarge-window
-        "<down>"  #'shrink-window)
+      ;; Files
+      "fs"  #'consult-find
+      "ff"  #'find-file
+      "fg"  #'consult-ripgrep
+      "fS"  #'consult-locate
+      "fr"  #'consult-recent-file
+      "im"  #'consult-imenu
+      "iM"  #'consult-imenu-multi
+      "fo"  #'consult-outline
+      "fl"  #'consult-focus-lines
+      "fj"  #'zoxide-find-file
+      "fj"  #'rename-file
 
-      (put #'shrink-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
-      (put #'enlarge-window-horizontally 'repeat-map 'my-window-resize-repeat-map)
-      (put #'enlarge-window              'repeat-map 'my-window-resize-repeat-map)
-      (put #'shrink-window               'repeat-map 'my-window-resize-repeat-map)
-
-      ;; 2. Window Navigation Repeat Map (New addition)
-      (defvar-keymap my-window-navigate-repeat-map
-        :doc "Repeat map for window navigation."
-        "<left>"  #'windmove-left
-        "<right>" #'windmove-right
-        "<up>"    #'windmove-up
-        "<down>"  #'windmove-down)
-
-      (put #'windmove-left  'repeat-map 'my-window-navigate-repeat-map)
-      (put #'windmove-right 'repeat-map 'my-window-navigate-repeat-map)
-      (put #'windmove-up    'repeat-map 'my-window-navigate-repeat-map)
-      (put #'windmove-down  'repeat-map 'my-window-navigate-repeat-map)
-
-      (repeat-mode 1)
+      ;; Tabs / terminal
+      "tf"    #'ghostel
+      "tt"    #'tab-new
+      "t M-t" #'tab-new-to
+      "tu"    #'tab-undo
+      "tk"    #'tab-close
+      "tm"    #'tab-move
+      "tn"    #'tab-detach
+      "tr"    #'tab-recent
+      "tl"    #'tab-list
+      "t]"    #'tab-next
+      "t[" #'tab-previous
+      "tg"    #'tab-group
+      "ts"    #'tab-select
+      "tM-r" #'tab-rename
+      "t1"   (lambda () (interactive) (tab-bar-select-tab 1))
+      "t2"   (lambda () (interactive) (tab-bar-select-tab 2))
+      "t3"   (lambda () (interactive) (tab-bar-select-tab 3))
+      "t4"   (lambda () (interactive) (tab-bar-select-tab 4))
+      "t5"   (lambda () (interactive) (tab-bar-select-tab 5))
+      "t6"   (lambda () (interactive) (tab-bar-select-tab 6))
+      "t7"   (lambda () (interactive) (tab-bar-select-tab 7))
+      "t8"   (lambda () (interactive) (tab-bar-select-tab 8))
+      "t9"   (lambda () (interactive) (tab-bar-select-tab 9))
       
-      (my-leader-def
-        ;; Core
-        "!" 'shell-command
-        "1" 'shell-command
-        "2" 'eshell
-        "@" 'eshell-command
-        "3" 'ghostel
-        "#" 'ghostel-other
-        "TAB" #'indent-region
-        "5" (lambda () (interactive) (load-file user-init-file))
-        "8" 'calc
-        "*" 'quick-calc
+      ;; Dired / Directory management 
+      "dd" #'consult-dir
+      "de" #'dired
+      "dj" #'dired-jump
+      "do" #'dired-other-window
+      "df" #'find-name-dired
 
-        ;; Mode-specific dynamic rebindings (maps to C-c sequences)
-        "oo" (kbd "C-c C-o")
-        "cc" (kbd "C-c C-c")
-        
-        ;;Execute/Evaluate
-        "xx" #'eval-buffer
-        "xs" #'eval-last-sexp
-        "xr" #'eval-region
-        "xd" #'eval-defun
-        "xe" #'eval-expression
-        "xp" #'eval-print-last-sexp
-        
-        ;; Files
-        "fs"  #'consult-find
-        "ff"  #'find-file
-        "fg"  #'consult-ripgrep
-        "fS"  #'consult-locate
-        "fr"  #'consult-recent-file
-        "im"  #'consult-imenu
-        "iM"  #'consult-imenu-multi
-        "fo"  #'consult-outline
-        "fl"  #'consult-focus-lines
-        "fj"  #'zoxide-find-file
-        "fj"  #'rename-file
+      ;; Editing
+      "ec" #'capitalize-dwim
 
-        ;; Tabs / terminal
-        "tf"    #'ghostel
-        "tt"    #'tab-new
-        "t M-t" #'tab-new-to
-        "tu"    #'tab-undo
-        "tk"    #'tab-close
-        "tm"    #'tab-move
-        "tn"    #'tab-detach
-        "tr"    #'tab-recent
-        "tl"    #'tab-list
-        "t]"    #'tab-next
-        "t[" #'tab-previous
-        "tg"    #'tab-group
-        "ts"    #'tab-select
-        "tM-r" #'tab-rename
-        "t1"   (lambda () (interactive) (tab-bar-select-tab 1))
-        "t2"   (lambda () (interactive) (tab-bar-select-tab 2))
-        "t3"   (lambda () (interactive) (tab-bar-select-tab 3))
-        "t4"   (lambda () (interactive) (tab-bar-select-tab 4))
-        "t5"   (lambda () (interactive) (tab-bar-select-tab 5))
-        "t6"   (lambda () (interactive) (tab-bar-select-tab 6))
-        "t7"   (lambda () (interactive) (tab-bar-select-tab 7))
-        "t8"   (lambda () (interactive) (tab-bar-select-tab 8))
-        "t9"   (lambda () (interactive) (tab-bar-select-tab 9))
-        
-        ;; Dired / Directory management 
-        "dd" #'consult-dir
-        "de" #'dired
-        "dj" #'dired-jump
-        "do" #'dired-other-window
-        "df" #'find-name-dired
+      ;; Code Actions
+      "cr" #'eglot-rename
+      "cf" #'eglot-format
+      "ce" #'consult-flymake
+      "c[" #'flymake-goto-prev-error
+      "c]" #'flymake-goto-next-error
+      "cs"  #'imenu
 
-        ;; Editing
-        "ec" #'capitalize-dwim
+      ;; Choose Map
+      "M-c t" #'consult-theme
+      "M-c d" #'zoxide-travel
+      "M-c i" #'set-input-method
+      "M-c M-i" #'toggle-input-method
+      "M-c ot" #'orgtbl-mode
 
-        ;; Code Actions
-        "cr" #'eglot-rename
-        "cf" #'eglot-format
-        "ce" #'consult-flymake
-        "c[" #'flymake-goto-prev-error
-        "c]" #'flymake-goto-next-error
-        "cs"  #'imenu
-
-        ;; Choose Map
-        "M-c t" #'consult-theme
-        "M-c d" #'zoxide-travel
-        "M-c i" #'set-input-method
-        "M-c M-i" #'toggle-input-method
-        "M-c ot" #'orgtbl-mode
-
-        ;; my functions
-        "M-m e" #'evil-mode
-        "M-m s" #'server-mode
-        "M-m f" #'follow-mode
-        "M-m h" #'font-lock-mode
-        "M-m l" #'my/toggle-line-numbers
-        "M-m m" #'my/toggle-mode-line
-        "M-m z" #'my/zen-mode
-        "M-m r" #'my/reading-mode
-        "M-g r" #'my/rg-recent-files
-        "M-m i"   #'my/incognito-mode
-        "M-m 8"   #'calc-embedded
-        
-        ;; Buffers
-        "bb"  #'consult-buffer
-        "b["  #'previous-buffer
-        "b]"  #'next-buffer
-        "bk"  #'kill-current-buffer
-        "bs"  #'save-buffer
-        "bi"  #'ibuffer
-        "bn"  #'scratch-buffer
-        "br"  #'rename-buffer
-
-        ;; Zoxide
-        "zz" #'zoxide-travel
-        "zr" #'zoxide-run
-        "zR" #'zoxide-remove
-        "za" #'zoxide-add
-        "zf" #'zoxide-find-file
-        "z M-q" #'zoxide-query-with
-
-        ;; Windows / Frames 
-        "ww" #'other-window
-        "wf" #'toggle-delete-other-windows
-        "w|" #'split-window-right
-        "w-" #'split-window-below
-        "wq" #'kill-buffer-and-window
-        "wc" #'delete-window
-        "wd" #'tear-off-window
-        "w <left>"  #'windmove-left
-        "w <right>" #'windmove-right
-        "w <up>"    #'windmove-up
-        "w <down>"  #'windmove-down
-        "wh"  #'windmove-left
-        "wl" #'windmove-right
-        "wk"    #'windmove-up
-        "wj"  #'windmove-down
-        "wr <left>"  #'shrink-window-horizontally
-        "wr <right>" #'enlarge-window-horizontally
-        "wr <up>"    #'enlarge-window
-        "wr <down>"  #'shrink-window
-        "wm <left>"  #'evil-window-move-far-left
-        "wm <right>" #'evil-window-move-far-right
-        "wm <up>"    #'evil-window-move-very-top
-        "wm <down>"  #'evil-window-move-very-bottom
-        ;; --- C-x 4 family (Other Window) ---
-        "wb" #'switch-to-buffer-other-window
-        "wF" #'find-file-other-window
-        "wD" #'dired-other-window
-        "wC" #'clone-indirect-buffer-other-window
-        "w." #'xref-find-definitions-other-window
-        ;; --- C-x 5 family (Other Frame under 'W') ---
-        "WW" #'other-frame
-        "Wn" #'make-frame-command
-        "Wq" #'delete-frame
-        "Wx" #'delete-other-frames
-        "Wb" #'switch-to-buffer-other-frame
-        "WF" #'find-file-other-frame
-        "WD" #'dired-other-frame
-        "WR" #'find-file-read-only-other-frame
-        "WC" #'clone-indirect-buffer-other-frame
-        "W." #'xref-find-definitions-other-frame
-        
-        
-        ;; Yank
-        "yy"  #'consult-yank-from-kill-ring
-        
-        ;; lines
-        "ls"  #'consult-line
-        "lS"  #'consult-line-multi
-        "lg"  #'consult-goto-line
-        "lf"  #'flush-lines
-        "lk"  #'consult-keep-lines
-        "l;"  #'delete-blank-lines
-        "l^"  #'sort-line
-        
-        ;; Project/Package
-        "pp"  #'project-switch-project
-        "pb"  #'consult-project-buffer
-        "pd"  #'project-find-dir
-        "pf"  #'project-find-file
-        "pg"  #'project-find-regexp
-        "pD"  #'project-dired
-        "ps"  #'project-shell
-        "pk"  #'project-kill-buffers
-        "pr"  #'project-shell-command
-        "PP"  #'list-packages
-        "PD"  #'package-delete
-        "PC"  #'package-autoremove
-        "PU"  #'package-upgrade-all
-        "Pu"  #'package-upgrade
-        "PM"  #'describe-package
-        "PI"  #'package-install
-        "Pi"  #'package-isolate
-        
-        ;; Bookmarks
-        "mm"  #'consult-bookmark
-        "mn"  #'bookmark-set
-        "mi"  #'bookmark-insert
-        "ml"  #'bookmark-insert-location
-        "mj"  #'bookmark-bmenu-list
-        
-        ;; Insert / Spell
-        "is"  #'ispell
-        "i/"  #'consult-info
-
-    	;;Search
-    	"/i" #'consult-info
-    	"/l" #'consult-line
-    	"/L" #'consult-line-multi
-    	"/r" #'replace-regexp
-    	"/s" #'replace-string
-    	"//" #'isearch-forward
-    	"/ M-/" #'isearch-backward
-      "/q" #'query-replace-regexp   ; Interactive replace with confirmation (M-%)
-  	"/Q" #'query-replace          ; Plain text query replace
-
-        ;; Snippets
-        "si"  #'yas-insert-snippet
-        "sn"  #'yas-new-snippet
-        "se"  #'yas-visit-snippet-file
-        
-        ;; Magit
-        "mg"  #'magit
-
-    	;; Help
-        "h" #'help-command
-        
-        ;; Narrowing
-        "nn" #'narrow-to-region
-        "np" #'narrow-to-page
-        "nd" #'narrow-to-defun
-        "nw" #'widen
-        
-        ;; Org / org-roam
-        "oa" #'org-agenda
-        "oc" #'org-capture
-        "on" #'org-roam-node-find
-
-        ;; editing macros
-        ",dbl" #'delete-blank-lines
-        )
+      ;; my functions
+      "M-m e" #'evil-mode
+      "M-m s" #'server-mode
+      "M-m f" #'follow-mode
+      "M-m h" #'font-lock-mode
+      "M-m l" #'my/toggle-line-numbers
+      "M-m m" #'my/toggle-mode-line
+      "M-m z" #'my/zen-mode
+      "M-m r" #'my/reading-mode
+      "M-g r" #'my/rg-recent-files
+      "M-m i"   #'my/incognito-mode
+      "M-m 8"   #'calc-embedded
       
-      (general-define-key
-       :states '(normal)
-       "K" #'eldoc-box-help-at-point)
+      ;; Buffers
+      "bb"  #'consult-buffer
+      "b["  #'previous-buffer
+      "b]"  #'next-buffer
+      "bk"  #'kill-current-buffer
+      "bs"  #'save-buffer
+      "bi"  #'ibuffer
+      "bn"  #'scratch-buffer
+      "br"  #'rename-buffer
+
+      ;; Zoxide
+      "zz" #'zoxide-travel
+      "zr" #'zoxide-run
+      "zR" #'zoxide-remove
+      "za" #'zoxide-add
+      "zf" #'zoxide-find-file
+      "z M-q" #'zoxide-query-with
+
+      ;; Windows / Frames 
+      "ww" #'other-window
+      "wf" #'toggle-delete-other-windows
+      "w|" #'split-window-right
+      "w-" #'split-window-below
+      "wq" #'kill-buffer-and-window
+      "wc" #'delete-window
+      "wd" #'tear-off-window
+      "w <left>"  #'windmove-left
+      "w <right>" #'windmove-right
+      "w <up>"    #'windmove-up
+      "w <down>"  #'windmove-down
+      "wh"  #'windmove-left
+      "wl" #'windmove-right
+      "wk"    #'windmove-up
+      "wj"  #'windmove-down
+      "wr <left>"  #'shrink-window-horizontally
+      "wr <right>" #'enlarge-window-horizontally
+      "wr <up>"    #'enlarge-window
+      "wr <down>"  #'shrink-window
+      "wm <left>"  #'evil-window-move-far-left
+      "wm <right>" #'evil-window-move-far-right
+      "wm <up>"    #'evil-window-move-very-top
+      "wm <down>"  #'evil-window-move-very-bottom
+      ;; --- C-x 4 family (Other Window) ---
+      "wb" #'switch-to-buffer-other-window
+      "wF" #'find-file-other-window
+      "wD" #'dired-other-window
+      "wC" #'clone-indirect-buffer-other-window
+      "w." #'xref-find-definitions-other-window
+      ;; --- C-x 5 family (Other Frame under 'W') ---
+      "WW" #'other-frame
+      "Wn" #'make-frame-command
+      "Wq" #'delete-frame
+      "Wx" #'delete-other-frames
+      "Wb" #'switch-to-buffer-other-frame
+      "WF" #'find-file-other-frame
+      "WD" #'dired-other-frame
+      "WR" #'find-file-read-only-other-frame
+      "WC" #'clone-indirect-buffer-other-frame
+      "W." #'xref-find-definitions-other-frame
       
-      (general-define-key
-       :states '(normal insert)
-       "C-j"
-       (lambda ()
-         (interactive)
-         (if (and (fboundp 'eldoc-box--frame-visible-p)
-                  (eldoc-box--frame-visible-p))
-             (eldoc-box-scroll-up 4)
-           (evil-next-visual-line)))
-       
-       "C-k"
-       (lambda ()
-         (interactive)
-         (if (and (fboundp 'eldoc-box--frame-visible-p)
-                  (eldoc-box--frame-visible-p))
-             (eldoc-box-scroll-down 4)
-           (evil-previous-visual-line))))
-
-      (my-local-leader-def
-        :keymaps 'org-mode-map
-        :states '(normal visual)
-        "cb" #'org-toggle-checkbox
-        "ee" #'org-emphasize
-        "xx" #'org-toggle-checkbox
-        "th" #'org-toggle-heading
-        "oo" #'org-open-at-point
-        "pp" #'org-latex-preview
-        "pb" #'my/org-latex-preview-toggle
-        "tc" #'org-table-create-or-convert-from-region
-        "t-" #'org-ctrl-c-minus
-        "os" #'org-sort
-        "ni" #'org-roam-node-insert
-        "nl" #'org-roam-buffer-toggle
-        "cp" #'my/org-insert-image-from-clipboard
-        "il" #'org-insert-link
-        "tp" #'org-toggle-inline-images
-        "tt" #'org-todo
-        "ts" #'org-schedule
-        "ar" #'org-refile
-        "aR" #'org-refile-copy
-        "td" #'org-deadline)
-
-      (my-local-leader-def
-        :keymaps 'org-agenda-mode-map
-        :states '(normal motion visual emacs)
-        "oo" #'org-agenda-goto             ; Opens/jumps to the entry at point
-        "tt" #'org-agenda-todo             ; Cycles TODO states
-        "ts" #'org-agenda-schedule         ; Schedules the item
-        "ar" #'org-agenda-refile           ; Refiles the item
-        "td" #'org-agenda-deadline)        ; Sets deadline
-
-
-      (my-local-leader-def
-        :keymaps 'org-agenda-mode-map
-        :states '(normal motion visual emacs)
-        ;; Core Navigation / Actions
-        "oo" #'org-agenda-goto             ; Go to the entry in the actual Org file
-        "os" #'org-agenda-show             ; Peek at the Org file in another window
-        "tt" #'org-agenda-todo             ; Cycle TODO state
-        "ar" #'org-agenda-refile           ; Refile the item
-        "gr" #'org-agenda-redo             ; Refresh / Rebuild the current agenda view
-
-        ;; Dates, Scheduling & Deadlines
-        "ts" #'org-agenda-schedule         ; Set/change scheduled date
-        "td" #'org-agenda-deadline         ; Set/change deadline
-        "t+" #'org-agenda-date-later       ; Shift date forward (by days/weeks)
-        "t-" #'org-agenda-date-earlier     ; Shift date backward (by days/weeks)
-        "tg" #'org-agenda-goto-today       ; Jump cursor straight to today's date
-
-        ;; Views (Day, Week, Month, Year)
-        "vd" #'org-agenda-day-view         ; Switch to daily view
-        "vw" #'org-agenda-week-view        ; Switch to weekly view
-        "vm" #'org-agenda-month-view       ; Switch to monthly view
-        "vy" #'org-agenda-year-view        ; Switch to yearly view
-
-        ;; Clocking Tasks
-        "ci" #'org-agenda-clock-in         ; Start clock on task
-        "co" #'org-agenda-clock-out        ; Stop clock on task
-        "cx" #'org-agenda-clock-cancel     ; Cancel running clock
-        "cj" #'org-agenda-clock-goto       ; Jump to currently clocked task
-        "cr" #'org-agenda-clockreport-mode ; Toggle inline clock table report
-
-        ;; Filtering & Toggles
-        "ft" #'org-agenda-filter-by-tag    ; Filter the current view by tags
-        "fc" #'org-agenda-filter-by-category ; Filter by category
-        "fu" #'org-agenda-filter-remove-all ; Clear all active agenda filters
-        "fl" #'org-agenda-log-mode         ; Toggle log mode (shows closed/clocked history)
-
-        ;; Bulk Actions (For acting on multiple marked items at once)
-        "mm" #'org-agenda-bulk-toggle      ; Toggle mark on item at point
-        "ma" #'org-agenda-bulk-action      ; Execute action (e.g. bulk-schedule/bulk-todo) on all marked items
-        "mu" #'org-agenda-bulk-unmark-all  ; Clear all active marks
-
-        ;; Exit
-        "ac" #'org-agenda-quit             ; Close the agenda window safely
-        "aq" #'org-agenda-exit             ; Exit and kill buffers loaded by agenda
-        )
       
-      (my-local-leader-def
-        :keymaps 'python-ts-mode-map
-        :states '(normal)
-        "cc" #'python-shell-send-buffer
-        "cr" #'python-shell-send-region
-        "co" #'run-python
-        "ce" #'python-shell-send-statement)
+      ;; Yank
+      "yy"  #'consult-yank-from-kill-ring
       
-      (my-local-leader-def
-        :keymaps 'julia-mode-map
-        :states '(normal)
-        "cc" #'julia-repl-send-buffer
-        "cr" #'julia-repl-send-region-or-line
-        "co" #'julia-repl
-        "ce" #'julia-repl-send-line)
+      ;; lines
+      "ls"  #'consult-line
+      "lS"  #'consult-line-multi
+      "lg"  #'consult-goto-line
+      "lf"  #'flush-lines
+      "lk"  #'consult-keep-lines
+      "l;"  #'delete-blank-lines
+      "l^"  #'sort-line
       
-      (my-local-leader-def
-        :keymaps 'octave-mode-map
-        :states '(normal visual)
-        "co" #'run-octave
-        "cc" #'octave-send-buffer
-        "cr" #'octave-send-region
-        "cf" #'octave-send-defun
-        "cs" #'octave-show-process-buffer
-        "cb" #'octave-send-block
-        "ck" #'octave-kill-process
-        "ce" #'octave-send-line
-        "cq" #'octave-hide-process-buffer)
+      ;; Project/Package
+      "pp"  #'project-switch-project
+      "pb"  #'consult-project-buffer
+      "pd"  #'project-find-dir
+      "pf"  #'project-find-file
+      "pg"  #'project-find-regexp
+      "pD"  #'project-dired
+      "ps"  #'project-eshell
+      "pt"  #'ghostel-project
+      "ps"  #'project-eshell
+      "pk"  #'project-kill-buffers
+      "pr"  #'project-async-shell-command
+      "PP"  #'list-packages
+      "PD"  #'package-delete
+      "PC"  #'package-autoremove
+      "PU"  #'package-upgrade-all
+      "Pu"  #'package-upgrade
+      "PM"  #'describe-package
+      "PI"  #'package-install
+      "Pi"  #'package-isolate
       
-      (my-local-leader-def
-        :keymaps '(text-mode-map 
-                   markdown-mode-map 
-                   tex-mode-map 
-                   LaTeX-mode-map 
-                   org-mode-map)
-        :states '(normal visual motion emacs nov)
-        "dd" #'wordnet-overview
-        "dD" #'wordnet-full)
+      ;; Bookmarks
+      "mm"  #'consult-bookmark
+      "mn"  #'bookmark-set
+      "mi"  #'bookmark-insert
+      "ml"  #'bookmark-insert-location
+      "mj"  #'bookmark-bmenu-list
       
-      (my-local-leader-def
-        :keymaps 'LaTeX-mode-map
-        :states '(normal)
-        
-        ;; Compile / View
-        "ll"  #'TeX-command-master
-        :states '(visual)
-        "pp" #'preview-region
-        "pc" #'preview-clearout)
+      ;; Insert / Spell
+      "is"  #'ispell
+      "i/"  #'consult-info
 
-      (general-define-key
-       :keymaps 'org-mode-map
-       :states 'normal
-       "<tab>" #'org-cycle
-       "TAB"   #'org-cycle)
+  	;;Search
+  	"/i" #'consult-info
+  	"/l" #'consult-line
+  	"/L" #'consult-line-multi
+  	"/r" #'replace-regexp
+  	"/s" #'replace-string
+  	"//" #'isearch-forward
+  	"/ M-/" #'isearch-backward
+    "/q" #'query-replace-regexp   ; Interactive replace with confirmation (M-%)
+  "/Q" #'query-replace          ; Plain text query replace
+
+      ;; Snippets
+      "si"  #'yas-insert-snippet
+      "sn"  #'yas-new-snippet
+      "se"  #'yas-visit-snippet-file
+      
+      ;; Magit
+      "mg"  #'magit
+
+  	;; Help
+      "h" #'help-command
+      
+      ;; Narrowing
+      "nn" #'narrow-to-region
+      "np" #'narrow-to-page
+      "nd" #'narrow-to-defun
+      "nw" #'widen
+      
+      ;; Org / org-roam
+      "oa" #'org-agenda
+      "oc" #'org-capture
+      "on" #'org-roam-node-find
+
+      ;; editing macros
+      ",dbl" #'delete-blank-lines
       )
+    
+    (general-define-key
+     :states '(normal)
+     "K" #'eldoc-box-help-at-point)
+    
+    (general-define-key
+     :states '(normal insert)
+     "C-j"
+     (lambda ()
+       (interactive)
+       (if (and (fboundp 'eldoc-box--frame-visible-p)
+                (eldoc-box--frame-visible-p))
+           (eldoc-box-scroll-up 4)
+         (evil-next-visual-line)))
+     
+     "C-k"
+     (lambda ()
+       (interactive)
+       (if (and (fboundp 'eldoc-box--frame-visible-p)
+                (eldoc-box--frame-visible-p))
+           (eldoc-box-scroll-down 4)
+         (evil-previous-visual-line))))
+
+    (my-local-leader-def
+      :keymaps 'org-mode-map
+      :states '(normal visual)
+      "cb" #'org-toggle-checkbox
+      "ee" #'org-emphasize
+      "xx" #'org-toggle-checkbox
+      "th" #'org-toggle-heading
+      "oo" #'org-open-at-point
+      "pp" #'org-latex-preview
+      "pb" #'my/org-latex-preview-toggle
+      "tc" #'org-table-create-or-convert-from-region
+      "t-" #'org-ctrl-c-minus
+      "os" #'org-sort
+      "ni" #'org-roam-node-insert
+      "nl" #'org-roam-buffer-toggle
+      "cp" #'my/org-insert-image-from-clipboard
+      "il" #'org-insert-link
+      "tp" #'org-toggle-inline-images
+      "tt" #'org-todo
+      "ts" #'org-schedule
+      "ar" #'org-refile
+      "aR" #'org-refile-copy
+      "td" #'org-deadline)
+
+    (my-local-leader-def
+      :keymaps 'org-agenda-mode-map
+      :states '(normal motion visual emacs)
+      "oo" #'org-agenda-goto             ; Opens/jumps to the entry at point
+      "tt" #'org-agenda-todo             ; Cycles TODO states
+      "ts" #'org-agenda-schedule         ; Schedules the item
+      "ar" #'org-agenda-refile           ; Refiles the item
+      "td" #'org-agenda-deadline)        ; Sets deadline
+
+
+    (my-local-leader-def
+      :keymaps 'org-agenda-mode-map
+      :states '(normal motion visual emacs)
+      ;; Core Navigation / Actions
+      "oo" #'org-agenda-goto             ; Go to the entry in the actual Org file
+      "os" #'org-agenda-show             ; Peek at the Org file in another window
+      "tt" #'org-agenda-todo             ; Cycle TODO state
+      "ar" #'org-agenda-refile           ; Refile the item
+      "gr" #'org-agenda-redo             ; Refresh / Rebuild the current agenda view
+
+      ;; Dates, Scheduling & Deadlines
+      "ts" #'org-agenda-schedule         ; Set/change scheduled date
+      "td" #'org-agenda-deadline         ; Set/change deadline
+      "t+" #'org-agenda-date-later       ; Shift date forward (by days/weeks)
+      "t-" #'org-agenda-date-earlier     ; Shift date backward (by days/weeks)
+      "tg" #'org-agenda-goto-today       ; Jump cursor straight to today's date
+
+      ;; Views (Day, Week, Month, Year)
+      "vd" #'org-agenda-day-view         ; Switch to daily view
+      "vw" #'org-agenda-week-view        ; Switch to weekly view
+      "vm" #'org-agenda-month-view       ; Switch to monthly view
+      "vy" #'org-agenda-year-view        ; Switch to yearly view
+
+      ;; Clocking Tasks
+      "ci" #'org-agenda-clock-in         ; Start clock on task
+      "co" #'org-agenda-clock-out        ; Stop clock on task
+      "cx" #'org-agenda-clock-cancel     ; Cancel running clock
+      "cj" #'org-agenda-clock-goto       ; Jump to currently clocked task
+      "cr" #'org-agenda-clockreport-mode ; Toggle inline clock table report
+
+      ;; Filtering & Toggles
+      "ft" #'org-agenda-filter-by-tag    ; Filter the current view by tags
+      "fc" #'org-agenda-filter-by-category ; Filter by category
+      "fu" #'org-agenda-filter-remove-all ; Clear all active agenda filters
+      "fl" #'org-agenda-log-mode         ; Toggle log mode (shows closed/clocked history)
+
+      ;; Bulk Actions (For acting on multiple marked items at once)
+      "mm" #'org-agenda-bulk-toggle      ; Toggle mark on item at point
+      "ma" #'org-agenda-bulk-action      ; Execute action (e.g. bulk-schedule/bulk-todo) on all marked items
+      "mu" #'org-agenda-bulk-unmark-all  ; Clear all active marks
+
+      ;; Exit
+      "ac" #'org-agenda-quit             ; Close the agenda window safely
+      "aq" #'org-agenda-exit             ; Exit and kill buffers loaded by agenda
+      )
+    
+    (my-local-leader-def
+      :keymaps 'python-ts-mode-map
+      :states '(normal)
+      "cc" #'python-shell-send-buffer
+      "cr" #'python-shell-send-region
+      "co" #'run-python
+      "ce" #'python-shell-send-statement)
+    
+    (my-local-leader-def
+      :keymaps 'julia-mode-map
+      :states '(normal)
+      "cc" #'julia-repl-send-buffer
+      "cr" #'julia-repl-send-region-or-line
+      "co" #'julia-repl
+      "ce" #'julia-repl-send-line)
+    
+    (my-local-leader-def
+      :keymaps 'octave-mode-map
+      :states '(normal visual)
+      "co" #'run-octave
+      "cc" #'octave-send-buffer
+      "cr" #'octave-send-region
+      "cf" #'octave-send-defun
+      "cs" #'octave-show-process-buffer
+      "cb" #'octave-send-block
+      "ck" #'octave-kill-process
+      "ce" #'octave-send-line
+      "cq" #'octave-hide-process-buffer)
+    
+    (my-local-leader-def
+      :keymaps '(text-mode-map 
+                 markdown-mode-map 
+                 tex-mode-map 
+                 LaTeX-mode-map 
+                 org-mode-map)
+      :states '(normal visual motion emacs nov)
+      "dd" #'wordnet-overview
+      "dD" #'wordnet-full)
+    
+    (my-local-leader-def
+      :keymaps 'LaTeX-mode-map
+      :states '(normal)
+      
+      ;; Compile / View
+      "ll"  #'TeX-command-master
+      :states '(visual)
+      "pp" #'preview-region
+      "pc" #'preview-clearout)
 
     (general-define-key
-     :keymaps 'dired-mode-map
+     :keymaps 'org-mode-map
      :states 'normal
-     :defer t
-     "i" 'evil-insert)
+     "<tab>" #'org-cycle
+     "TAB"   #'org-cycle)
+    )
+
+  (general-define-key
+   :keymaps 'dired-mode-map
+   :states 'normal
+   :defer t
+   "i" 'evil-insert)
 #+end_src
 
 
 * Testing
 
 #+begin_src emacs-lisp
-          (use-package ghostel
-           :ensure t)
+  (use-package ghostel
+    :ensure t)
 
-             (add-hook 'shell-mode-hook
-                     (lambda ()
-                       (shell-dirtrack-mode 1)))
+  (add-hook 'shell-mode-hook
+            (lambda ()
+              (shell-dirtrack-mode 1)))
 
-             (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+  (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
 
-(with-eval-after-load 'eshell
-  (defun my-newline-eshell-prompt ()
-    (concat
-     ;; Line 1: Full path with home directory abbreviated to ~
-     (abbreviate-file-name (eshell/pwd))
-     ;; Move to the next line
-     "\n"
-     ;; Line 2: Prompt symbol based on user privileges
-     (if (= (user-uid) 0) "# " "$ ")))
+  (with-eval-after-load 'eshell
+    (defun my-newline-eshell-prompt ()
+      (concat
+       ;; Line 1: Full path with home directory abbreviated to ~
+       (abbreviate-file-name (eshell/pwd))
+       ;; Move to the next line
+       "\n"
+       ;; Line 2: Prompt symbol based on user privileges
+       (if (= (user-uid) 0) "# " "$ ")))
 
-  ;; Apply the multi-line prompt function
-  (setq eshell-prompt-function #'my-newline-eshell-prompt)
-  
-  ;; Update regexp to match the prompt on its own line
-  (setq eshell-prompt-regexp "^[#$] "))
+    ;; Apply the multi-line prompt function
+    (setq eshell-prompt-function #'my-newline-eshell-prompt)
+    
+    ;; Update regexp to match the prompt on its own line
+    (setq eshell-prompt-regexp "^[#$] "))
 
 #+end_src

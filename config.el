@@ -97,68 +97,68 @@
   :hook (after-init . minions-mode)
   :custom (minions-mode-line-lighter " ⚙"))
 
-(use-package mood-line
-  :ensure t
-  :config
-  (mood-line-mode 1)
+;; (use-package mood-line
+;;   :ensure t
+;;   :config
+;;   (mood-line-mode 1)
   
-  (defun my-mood-line-segment-minions ()
-    "Render the minions major and minor mode menu into a flat string."
-    (format-mode-line minions-mode-line-modes))
+;;   (defun my-mood-line-segment-minions ()
+;;     "Render the minions major and minor mode menu into a flat string."
+;;     (format-mode-line minions-mode-line-modes))
   
-  ;; Redefine the mood-line layout
-  (setq mood-line-format
-        (mood-line-defformat
-         :left
-         (((mood-line-segment-modal)             . " ")
-          ((mood-line-segment-buffer-status)     . "")
-          ((mood-line-segment-buffer-name)       . "  ")
-          ((mood-line-segment-cursor-position)   . ""))
+;;   ;; Redefine the mood-line layout
+;;   (setq mood-line-format
+;;         (mood-line-defformat
+;;          :left
+;;          (((mood-line-segment-modal)             . " ")
+;;           ((mood-line-segment-buffer-status)     . "")
+;;           ((mood-line-segment-buffer-name)       . "  ")
+;;           ((mood-line-segment-cursor-position)   . ""))
          
-         :right
-         (;; Major and minor modes moved here
-          ((my-mood-line-segment-minions)        . "  ")
-          ((mood-line-segment-scroll)            . " ")
-          ((mood-line-segment-process)           . " ")
-          ((mood-line-segment-vc)                . "  ")
-          ((mood-line-segment-checker)           . "")))))
+;;          :right
+;;          (;; Major and minor modes moved here
+;;           ((my-mood-line-segment-minions)        . "  ")
+;;           ((mood-line-segment-scroll)            . " ")
+;;           ((mood-line-segment-process)           . " ")
+;;           ((mood-line-segment-vc)                . "  ")
+;;           ((mood-line-segment-checker)           . "")))))
 
 ;;; Evil Package Vim Bindings
-(use-package evil
-  :ensure t
-  :demand t
-  :bind (("<escape>" . keyboard-escape-quit))
-  :init
-  (setq evil-want-keybinding nil)
-  (setq evil-want-integration t)
-  (setq evil-normal-state-cursor 'box)
-  (setq evil-insert-state-cursor 'bar)
-  (setq evil-visual-state-cursor 'hollow)
-  (setq evil-vsplit-window-right t)
-  (setq evil-split-window-below t)
-  (setq evil-disable-insert-state-bindings t)
-  :config
-  (keymap-set evil-motion-state-map "C-z" nil)
-  (keymap-set evil-normal-state-map "C-z" nil)
-  (keymap-set evil-insert-state-map "C-z" nil)
-  (keymap-set evil-visual-state-map "C-z" nil)
-  (evil-mode 1))
+  (use-package evil
+    :ensure t
+    :demand t
+    :bind (("<escape>" . keyboard-escape-quit))
+    :init
+    (setq evil-want-keybinding nil)
+    (setq evil-want-integration t)
+    (setq evil-normal-state-cursor 'box)
+    (setq evil-insert-state-cursor 'bar)
+    (setq evil-visual-state-cursor 'hollow)
+    (setq evil-vsplit-window-right t)
+    (setq evil-split-window-below t)
+    (setq evil-disable-insert-state-bindings t)
+    :config
+    (keymap-set evil-motion-state-map "C-z" nil)
+    (keymap-set evil-normal-state-map "C-z" nil)
+    (keymap-set evil-insert-state-map "C-z" nil)
+    (keymap-set evil-visual-state-map "C-z" nil)
+    (evil-mode 1))
 
 (use-package evil-collection
   :ensure t
-  :after evil
+  :after (evil)
   :init
   (setq evil-collection-setup-minibuffer t)
   (setq evil-collection-mode-list '(dashboard dired ibuffer info woman help))
   (setq evil-collection-key-blacklist '("SPC"))
   :config
   (evil-collection-init)
-  
+
   ;; Custom overrides
   (evil-collection-define-key 'normal 'dired-mode-map
     "h" 'dired-up-directory
     "l" 'dired-find-file)
-  
+
   (evil-collection-define-key 'normal 'Info-mode-map
     "h" 'Info-history-back
     "l" 'Info-history-forward
@@ -166,21 +166,23 @@
 
 (evil-set-initial-state 'package-menu-mode 'normal)
 
-;; Fixes evil mode commenting for org + unifies and fixes all commenting 
-(use-package evil-nerd-commenter
-  :ensure t
-  :after evil
-  :config
-  (evilnc-default-hotkeys))
+  (evil-set-initial-state 'package-menu-mode 'normal)
 
-;; Escape insert mode with jj jk etc not possible with vanilla emacs 
-(use-package evil-escape
-  :ensure t
-  :init
-  (setq evil-escape-key-sequence "jk")
-  (setq evil-escape-delay 0.2) ; Time window (in seconds) to hit both keys
-  :config
-  (evil-escape-mode 1))
+  ;; Fixes evil mode commenting for org + unifies and fixes all commenting 
+  (use-package evil-nerd-commenter
+    :ensure t
+    :after evil
+    :config
+    (evilnc-default-hotkeys))
+
+  ;; Escape insert mode with jj jk etc not possible with vanilla emacs 
+  (use-package evil-escape
+    :ensure t
+    :init
+    (setq evil-escape-key-sequence "jk")
+    (setq evil-escape-delay 0.2) ; Time window (in seconds) to hit both keys
+    :config
+    (evil-escape-mode 1))
 
 ;;; Completion framework setup
 ;;;; vertico
@@ -384,8 +386,7 @@
   (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
   (global-corfu-mode)
   (corfu-popupinfo-mode)
-  (corfu-history-mode)
-  (evil-collection-corfu-setup))
+  (corfu-history-mode))
 
 
   ;;; Snippets
@@ -1670,9 +1671,11 @@
     "pf"  #'project-find-file
     "pg"  #'project-find-regexp
     "pD"  #'project-dired
-    "ps"  #'project-shell
+    "ps"  #'project-eshell
+    "pt"  #'ghostel-project
+    "ps"  #'project-eshell
     "pk"  #'project-kill-buffers
-    "pr"  #'project-shell-command
+    "pr"  #'project-async-shell-command
     "PP"  #'list-packages
     "PD"  #'package-delete
     "PC"  #'package-autoremove
@@ -1895,13 +1898,13 @@
  "i" 'evil-insert)
 
 (use-package ghostel
-           :ensure t)
+  :ensure t)
 
-             (add-hook 'shell-mode-hook
-                     (lambda ()
-                       (shell-dirtrack-mode 1)))
+(add-hook 'shell-mode-hook
+          (lambda ()
+            (shell-dirtrack-mode 1)))
 
-             (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+(setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
 
 (with-eval-after-load 'eshell
   (defun my-newline-eshell-prompt ()
