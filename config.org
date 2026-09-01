@@ -109,55 +109,39 @@
 
 ** Theming/Faces overrides
 #+begin_src emacs-lisp
-  (defun my/update-global-faces ()
-    (set-face-attribute
-     'mode-line nil
-     :height 0.7))
+  (custom-theme-set-faces
+   'user
+   ;; Modeline
+   '(mode-line
+     ((t (:height 0.7))))
 
-  (defun my/update-org-faces ()
-  (set-face-attribute
-   'org-tag nil
-   :foreground (face-background 'default)
-   :background nil
-   :box nil
-   :weight 'normal)
+   '(mode-line-active
+     ((t (:height 0.7))))
 
-  (set-face-attribute
-   'org-level-1 nil
-   :height 1.5
-   :weight 'bold)
+   '(mode-line-inactive
+     ((t (:height 0.7))))
 
-  (set-face-attribute
-   'org-level-2 nil
-   :height 1.4
-   :weight 'bold)
+   ;; Org
+   '(org-tag
+     ((t (:foreground unspecified
+           :background unspecified
+           :box nil
+           :weight normal))))
 
-  (set-face-attribute
-   'org-level-3 nil
-   :height 1.3
-   :weight 'semi-bold)
+   '(org-level-1
+     ((t (:height 1.5 :weight bold))))
 
-  (set-face-attribute
-   'org-level-4 nil
-   :height 1.2
-   :weight 'bold)
+   '(org-level-2
+     ((t (:height 1.4 :weight bold))))
 
-  (set-face-attribute
-   'org-level-5 nil
-   :height 1.1
-   :weight 'bold))
+   '(org-level-3
+     ((t (:height 1.3 :weight semi-bold))))
 
-  (add-hook 'enable-theme-functions
-            (lambda (_theme)
-              (my/update-global-faces)
-              (when (facep 'org-tag)
-                (my/update-org-faces))))
+   '(org-level-4
+     ((t (:height 1.2 :weight bold))))
 
-  (with-eval-after-load 'org
-    (my/update-org-faces))
-  (my/update-global-faces)
-
-
+   '(org-level-5
+     ((t (:height 1.1 :weight bold)))))
 #+end_src
 
 ** Mode line monfig
@@ -194,6 +178,7 @@
   ;;           ((mood-line-segment-vc)                . "  ")
   ;;           ((mood-line-segment-checker)           . "")))))
 
+ (set-face-attribute 'mode-line nil :height 0.7)
 
 #+end_src
 
@@ -546,12 +531,12 @@ Load Plugins that are defines in ./lisp/ directory
   ;; Color Inserter Setup
     (use-package my-insert-colors
   	:defer t ;; not required with commands here for semantics
-      :load-path "lisp/"
+  	:ensure nil
       :commands insert-color) 
 
     ;; WordNet Setup for Prose Modes
     (use-package my-wordnet
-      :load-path "lisp/"
+  	:ensure nil
       ;; Declaring :commands creates manual autoloads to defer loading
       :commands (wordnet-overview 
                  wordnet-full)
@@ -2285,32 +2270,33 @@ Using Emacs-Style keybindings
 * Testing
 
 #+begin_src emacs-lisp
-    (use-package ghostel
-      :ensure t)
+      (use-package ghostel
+        :ensure t)
 
-    (add-hook 'shell-mode-hook
-              (lambda ()
-                (shell-dirtrack-mode 1)))
+      (add-hook 'shell-mode-hook
+                (lambda ()
+                  (shell-dirtrack-mode 1)))
 
-    (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+      (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
 
-    (with-eval-after-load 'eshell
-      (defun my-newline-eshell-prompt ()
-        (concat
-         ;; Line 1: Full path with home directory abbreviated to ~
-         (abbreviate-file-name (eshell/pwd))
-         ;; Move to the next line
-         "\n"
-         ;; Line 2: Prompt symbol based on user privileges
-         (if (= (user-uid) 0) "# " "$ ")))
+      (with-eval-after-load 'eshell
+        (defun my-newline-eshell-prompt ()
+          (concat
+           ;; Line 1: Full path with home directory abbreviated to ~
+           (abbreviate-file-name (eshell/pwd))
+           ;; Move to the next line
+           "\n"
+           ;; Line 2: Prompt symbol based on user privileges
+           (if (= (user-uid) 0) "# " "$ ")))
 
-      ;; Apply the multi-line prompt function
-      (setq eshell-prompt-function #'my-newline-eshell-prompt)
-      
-      ;; Update regexp to match the prompt on its own line
-      (setq eshell-prompt-regexp "^[#$] "))
+        ;; Apply the multi-line prompt function
+        (setq eshell-prompt-function #'my-newline-eshell-prompt)
+        
+        ;; Update regexp to match the prompt on its own line
+        (setq eshell-prompt-regexp "^[#$] "))
 
-;; Suppress lexical-binding warnings for system-installed files
-(setq warning-suppress-types '((files lexical-binding)))
+  ;; Suppress lexical-binding warnings for system-installed files
+  (setq warning-suppress-types '((files lexical-binding)))
+
 
 #+end_src

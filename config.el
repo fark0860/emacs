@@ -45,85 +45,73 @@
   :init
   (auto-dark-mode))
 
-(defun my/update-global-faces ()
-  (set-face-attribute
-   'mode-line nil
-   :height 0.7))
+(custom-theme-set-faces
+ 'user
+ ;; Modeline
+ '(mode-line
+   ((t (:height 0.7))))
 
-(defun my/update-org-faces ()
-(set-face-attribute
- 'org-tag nil
- :foreground (face-background 'default)
- :background nil
- :box nil
- :weight 'normal)
+ '(mode-line-active
+   ((t (:height 0.7))))
 
-(set-face-attribute
- 'org-level-1 nil
- :height 1.5
- :weight 'bold)
+ '(mode-line-inactive
+   ((t (:height 0.7))))
 
-(set-face-attribute
- 'org-level-2 nil
- :height 1.4
- :weight 'bold)
+ ;; Org
+ '(org-tag
+   ((t (:foreground unspecified
+         :background unspecified
+         :box nil
+         :weight normal))))
 
-(set-face-attribute
- 'org-level-3 nil
- :height 1.3
- :weight 'semi-bold)
+ '(org-level-1
+   ((t (:height 1.5 :weight bold))))
 
-(set-face-attribute
- 'org-level-4 nil
- :height 1.2
- :weight 'bold)
+ '(org-level-2
+   ((t (:height 1.4 :weight bold))))
 
-(set-face-attribute
- 'org-level-5 nil
- :height 1.1
- :weight 'bold))
+ '(org-level-3
+   ((t (:height 1.3 :weight semi-bold))))
 
-(add-hook 'enable-theme-functions
-          (lambda (_theme)
-            (my/update-global-faces)
-            (when (facep 'org-tag)
-              (my/update-org-faces))))
+ '(org-level-4
+   ((t (:height 1.2 :weight bold))))
 
-(with-eval-after-load 'org
-  (my/update-org-faces))
-(my/update-global-faces)
+ '(org-level-5
+   ((t (:height 1.1 :weight bold)))))
 
 ;; Group minor modes together to avoid clutter 
-(use-package minions 
-  :ensure t
-  :hook (after-init . minions-mode)
-  :custom (minions-mode-line-lighter " ⚙"))
+ (use-package minions 
+   :ensure t
+   :hook (after-init . minions-mode)
+   :custom (minions-mode-line-lighter " ⚙"))
 
-;; (use-package mood-line
-;;   :ensure t
-;;   :config
-;;   (mood-line-mode 1)
-  
-;;   (defun my-mood-line-segment-minions ()
-;;     "Render the minions major and minor mode menu into a flat string."
-;;     (format-mode-line minions-mode-line-modes))
-  
-;;   ;; Redefine the mood-line layout
-;;   (setq mood-line-format
-;;         (mood-line-defformat
-;;          :left
-;;          (((mood-line-segment-modal)             . " ")
-;;           ((mood-line-segment-buffer-status)     . "")
-;;           ((mood-line-segment-buffer-name)       . "  ")
-;;           ((mood-line-segment-cursor-position)   . ""))
-         
-;;          :right
-;;          (;; Major and minor modes moved here
-;;           ((my-mood-line-segment-minions)        . "  ")
-;;           ((mood-line-segment-scroll)            . " ")
-;;           ((mood-line-segment-process)           . " ")
-;;           ((mood-line-segment-vc)                . "  ")
-;;           ((mood-line-segment-checker)           . "")))))
+ ;; (use-package mood-line
+ ;;   :ensure t
+ ;;   :config
+ ;;   (mood-line-mode 1)
+   
+ ;;   (defun my-mood-line-segment-minions ()
+ ;;     "Render the minions major and minor mode menu into a flat string."
+ ;;     (format-mode-line minions-mode-line-modes))
+   
+ ;;   ;; Redefine the mood-line layout
+ ;;   (setq mood-line-format
+ ;;         (mood-line-defformat
+ ;;          :left
+ ;;          (((mood-line-segment-modal)             . " ")
+ ;;           ((mood-line-segment-buffer-status)     . "")
+ ;;           ((mood-line-segment-buffer-name)       . "  ")
+ ;;           ((mood-line-segment-cursor-position)   . ""))
+          
+ ;;          :right
+ ;;          (;; Major and minor modes moved here
+ ;;           ((my-mood-line-segment-minions)        . "  ")
+ ;;           ((mood-line-segment-scroll)            . " ")
+ ;;           ((mood-line-segment-process)           . " ")
+ ;;           ((mood-line-segment-vc)                . "  ")
+ ;;           ((mood-line-segment-checker)           . "")))))
+
+(set-face-attribute 'mode-line nil :height 0.7)
 
 ;;; Evil Package Vim Bindings
   (use-package evil
@@ -437,12 +425,12 @@
 ;; Color Inserter Setup
   (use-package my-insert-colors
 	:defer t ;; not required with commands here for semantics
-    :load-path "lisp/"
+	:ensure nil
     :commands insert-color) 
 
   ;; WordNet Setup for Prose Modes
   (use-package my-wordnet
-    :load-path "lisp/"
+	:ensure nil
     ;; Declaring :commands creates manual autoloads to defer loading
     :commands (wordnet-overview 
                wordnet-full)
