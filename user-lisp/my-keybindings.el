@@ -1,0 +1,191 @@
+;;; keybindings.el --- Custom Ergonomic Keybindings Configuration -*- lexical-binding: t; -*-
+
+;; ============================================================================
+;; 1. ROOT PREFIX RESET & SINGLE ACTIONS
+;; ============================================================================
+
+(global-unset-key (kbd "C-a"))
+(global-unset-key (kbd "C-z"))
+
+;; ---- Single Root Actions ----
+(keymap-set global-map "C-a C-t" #'ghostel)
+(keymap-set global-map "C-a C-s" #'eshell)
+
+;; ---- Evaluate / Execute (C-a x ...) ----
+(keymap-set global-map "C-a x x" #'eval-buffer)
+(keymap-set global-map "C-a x s" #'eval-last-sexp)
+(keymap-set global-map "C-a x r" #'eval-region)
+(keymap-set global-map "C-a x d" #'eval-defun)
+(keymap-set global-map "C-a x e" #'eval-expression)
+(keymap-set global-map "C-a x p" #'eval-print-last-sexp)
+
+;; ---- Tabs (C-a t ...) ----
+(keymap-set global-map "C-a t t"   #'tab-new)
+(keymap-set global-map "C-a t M-t" #'tab-new-to)
+(keymap-set global-map "C-a t u"   #'tab-undo)
+(keymap-set global-map "C-a t k"   #'tab-close)
+(keymap-set global-map "C-a t m"   #'tab-move)
+(keymap-set global-map "C-a t d"   #'tab-detach)
+(keymap-set global-map "C-a t r"   #'tab-recent)
+(keymap-set global-map "C-a t l"   #'tab-list)
+(keymap-set global-map "C-a t n"   #'tab-next)
+(keymap-set global-map "C-a t M-n" #'tab-previous)
+(keymap-set global-map "C-a t g"   #'tab-group)
+(keymap-set global-map "C-a t s"   #'tab-select)
+(keymap-set global-map "C-a t M-r" #'tab-rename)
+(keymap-set global-map "C-a t 1"   (lambda () (interactive) (tab-bar-select-tab 1)))
+(keymap-set global-map "C-a t 2"   (lambda () (interactive) (tab-bar-select-tab 2)))
+(keymap-set global-map "C-a t 3"   (lambda () (interactive) (tab-bar-select-tab 3)))
+(keymap-set global-map "C-a t 4"   (lambda () (interactive) (tab-bar-select-tab 4)))
+(keymap-set global-map "C-a t 5"   (lambda () (interactive) (tab-bar-select-tab 5)))
+(keymap-set global-map "C-a t 6"   (lambda () (interactive) (tab-bar-select-tab 6)))
+(keymap-set global-map "C-a t 7"   (lambda () (interactive) (tab-bar-select-tab 7)))
+(keymap-set global-map "C-a t 8"   (lambda () (interactive) (tab-bar-select-tab 8)))
+(keymap-set global-map "C-a t 9"   (lambda () (interactive) (tab-bar-select-tab 9)))
+
+;; ---- Buffer (C-a b ...) ----
+(keymap-set global-map "C-a b b" #'consult-buffer)
+(keymap-set global-map "C-a b k" #'kill-current-buffer)
+(keymap-set global-map "C-a b i" #'ibuffer)
+(keymap-set global-map "C-a b s" #'save-buffer)
+(keymap-set global-map "C-a b n" #'scratch-buffer)
+
+;; ---- Window (C-a w ...) ----
+(keymap-set global-map "C-a w w" #'other-window)
+(keymap-set global-map "C-a w f" #'toggle-delete-other-windows)
+(keymap-set global-map "C-a w |" #'split-window-right)
+(keymap-set global-map "C-a w -" #'split-window-below)
+(keymap-set global-map "C-a w q" #'kill-buffer-and-window)
+(keymap-set global-map "C-a w d" #'delete-window)
+
+;; ---- Dired / Directory management (C-a d ...) ----
+(keymap-set global-map "C-a d d" #'consult-dir)
+(keymap-set global-map "C-a d j" #'dired-jump)
+(keymap-set global-map "C-a d o" #'dired-other-window)
+(keymap-set global-map "C-a d f" #'find-name-dired)
+
+;; ---- Choose Map (C-a M-c ...) ----
+(keymap-set global-map "C-a M-c t"   #'consult-theme)
+(keymap-set global-map "C-a M-c e"   #'evil-mode)
+(keymap-set global-map "C-a M-c d"   #'zoxide-travel)
+(keymap-set global-map "C-a M-c i"   #'set-input-method)
+(keymap-set global-map "C-a M-c M-i" #'toggle-input-method)
+
+;; ---- Zoxide (C-a z ...) ----
+(keymap-set global-map "C-a z z"   #'zoxide-travel)
+(keymap-set global-map "C-a z r"   #'zoxide-run)
+(keymap-set global-map "C-a z R"   #'zoxide-remove)
+(keymap-set global-map "C-a z a"   #'zoxide-add)
+(keymap-set global-map "C-a z f"   #'zoxide-find-file)
+(keymap-set global-map "C-a z M-q" #'zoxide-query-with)
+
+;; ---- Files / Search management (C-a f ...) ----
+(keymap-set global-map "C-a f f" #'find-file)
+(keymap-set global-map "C-a f s" #'consult-find)
+(keymap-set global-map "C-a f g" #'consult-ripgrep)
+(keymap-set global-map "C-a f S" #'consult-locate)
+(keymap-set global-map "C-a f b" #'consult-buffer)
+(keymap-set global-map "C-a f r" #'consult-recent-file)
+(keymap-set global-map "C-a f i" #'consult-imenu)
+(keymap-set global-map "C-a f I" #'consult-imenu-multi)
+(keymap-set global-map "C-a f o" #'consult-outline)
+(keymap-set global-map "C-a f l" #'consult-focus-lines)
+(keymap-set global-map "C-a f j" #'zoxide-find-file)
+
+;; ---- Code Actions ---- 
+(keymap-set global-map "C-a c r" #'eglot-rename)
+(keymap-set global-map "C-a c a" #'eglot-code-actions)
+(keymap-set global-map "C-a c f" #'eglot-format)
+(keymap-set global-map "C-a c e" #'consult-flymake)
+(keymap-set global-map "C-a c [" #'flymake-goto-prev-error)
+(keymap-set global-map "C-a c ]" #'flymake-goto-next-error)
+
+;; ---- Search Map (C-a s ...) ----
+(keymap-set global-map "C-a s l"   #'consult-line)
+(keymap-set global-map "C-a s M-l" #'consult-line-multi)
+(keymap-set global-map "C-a s g"   #'consult-goto-line)
+
+;; ============================================================================
+;; 2. C-z QUICK EDIT & UTILITY HUB
+;; ============================================================================
+
+(keymap-set global-map "C-z C-t" #'transpose-lines)
+(keymap-set global-map "C-z C-o" #'delete-blank-lines)
+(keymap-set global-map "C-z C-k" #'kill-line)
+(keymap-set global-map "C-z C-d" #'duplicate-dwim)
+(keymap-set global-map "C-z C-y" #'yank)
+(keymap-set global-map "C-z y"   #'yank-pop)
+(keymap-set global-map "C-z C-w" #'kill-region)
+(keymap-set global-map "C-z w"   #'kill-ring-save)
+(keymap-set global-map "C-z C-u" #'upcase-dwim)
+(keymap-set global-map "C-z C-l" #'downcase-dwim)
+(keymap-set global-map "C-z C-c" #'capitalize-dwim)
+(keymap-set global-map "C-z d"   #'kill-word)
+(keymap-set global-map "C-z SPC" #'just-one-space)
+(keymap-set global-map "C-z \\"  #'delete-horizontal-space)
+(keymap-set global-map "C-z C-;" #'comment-line)
+(keymap-set global-map "C-z C-i" #'insert-char)
+
+;; ============================================================================
+;; 3. MODE SPECIFIC ACTIONS (C-a C-a ...)
+;; ============================================================================
+
+;; ---- CSS Mode ----
+(add-hook 'css-mode-hook
+          (lambda ()
+            (keymap-local-set "C-a C-a c i" #'insert-color)
+            (keymap-local-set "C-a C-a c r" #'css-replace-hex)))
+
+;; ---- Shell Mode ----
+(add-hook 'shell-mode-hook
+          (lambda ()
+            (keymap-local-set "C-a C-a k" #'comint-clear-buffer)))
+
+;; ---- Org Mode ----
+(add-hook 'org-mode-hook
+          (lambda ()
+            (keymap-local-set "C-a C-a c b" #'org-toggle-checkbox)
+            (keymap-local-set "C-a C-a e e" #'org-emphasize)
+            (keymap-local-set "C-a C-a x x" #'org-toggle-checkbox)
+            (keymap-local-set "C-a C-a t h" #'org-toggle-heading)
+            (keymap-local-set "C-a C-a o o" #'org-open-at-point)
+            (keymap-local-set "C-a C-a p p" #'org-latex-preview)
+            (keymap-local-set "C-a C-a p b" #'my/org-latex-preview-toggle)
+            (keymap-local-set "C-a C-a t c" #'org-table-create-or-convert-from-region)
+            (keymap-local-set "C-a C-a t -" #'org-ctrl-c-minus)
+            (keymap-local-set "C-a C-a s s" #'org-sort)
+            (keymap-local-set "C-a C-a n i" #'org-roam-node-insert)
+            (keymap-local-set "C-a C-a n l" #'org-roam-buffer-toggle)
+            (keymap-local-set "C-a C-a i l" #'org-insert-link)
+            (keymap-local-set "C-a C-a p i" #'org-toggle-inline-images)
+            (keymap-local-set "C-a C-a t t" #'org-todo)
+            (keymap-local-set "C-a C-a t s" #'org-schedule)
+            (keymap-local-set "C-a C-a a r" #'org-refile)
+            (keymap-local-set "C-a C-a a R" #'org-refile-copy)
+            (keymap-local-set "C-a C-a t d" #'org-deadline)))
+
+;; ============================================================================
+;; 4. ABSOLUTE NAVIGATIONAL INTERCEPTS (Emulation Layer)
+;; ============================================================================
+
+(defvar my-intercept-navigation-map (make-sparse-keymap))
+
+(keymap-set my-intercept-navigation-map "C-l"   #'move-end-of-line)
+(keymap-set my-intercept-navigation-map "C-M-l" #'move-beginning-of-line)
+(keymap-set my-intercept-navigation-map "C-f"   #'forward-word)
+(keymap-set my-intercept-navigation-map "C-M-f" #'backward-word)
+(keymap-set my-intercept-navigation-map "C-s"   #'forward-sentence)
+(keymap-set my-intercept-navigation-map "C-M-s" #'backward-sentence)
+(keymap-set my-intercept-navigation-map "C-p"   #'forward-paragraph)
+(keymap-set my-intercept-navigation-map "C-M-p" #'backward-paragraph)
+(keymap-set my-intercept-navigation-map "C-e"   #'forward-sexp)
+(keymap-set my-intercept-navigation-map "C-M-e" #'backward-sexp)
+(keymap-set my-intercept-navigation-map "C-n"   #'next-line)
+(keymap-set my-intercept-navigation-map "C-M-n" #'previous-line)
+(keymap-set my-intercept-navigation-map "C-b"   #'end-of-buffer)
+(keymap-set my-intercept-navigation-map "C-M-b" #'beginning-of-buffer)
+
+(add-to-list 'emulation-mode-map-alists `((t . ,my-intercept-navigation-map)))
+
+(provide 'keybindings)
+;;; keybindings.el ends here
