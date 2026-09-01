@@ -1,3 +1,4 @@
+;; -*- lexical-binding: t; -*-
 (let ((file-name-handler-alist nil))
 ; load config.org file as config 
 (org-babel-load-file

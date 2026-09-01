@@ -1,30 +1,31 @@
-;; Initialize the built-in package manager
-  (require 'package)
+;; -*- lexical-binding: t; -*-
+      ;; Initialize the built-in package manager
+    (require 'package)
 
-  ;; Configure package archives
-(setq package-archives 
-      '(("melpa"        . "https://melpa.org/packages/")
-        ("melpa-stable" . "https://stable.melpa.org/packages/")
-        ("elpa"         . "https://elpa.gnu.org/packages/")))
+    ;; Configure package archives
+  (setq package-archives 
+        '(("melpa"        . "https://melpa.org/packages/")
+          ("melpa-stable" . "https://stable.melpa.org/packages/")
+          ("elpa"         . "https://elpa.gnu.org/packages/")))
 
-(setq package-archive-priorities
-      '(("melpa"        . 30)
-	  ("melpa-stable" . 20)
-        ("elpa"         . 10)))
-  ;; Initialize and optionally refresh archives
-  (package-initialize)
-  (unless package-archive-contents
-    (package-refresh-contents))
+  (setq package-archive-priorities
+        '(("melpa"        . 30)
+  	  ("melpa-stable" . 20)
+          ("elpa"         . 10)))
+    ;; Initialize and optionally refresh archives
+    (package-initialize)
+    (unless package-archive-contents
+      (package-refresh-contents))
 
-  (require 'use-package)
-  ;; Force use-package to install missing packages via package.el by default
-  (setq use-package-always-ensure t)
-  (setq use-package-compute-statistics t)
-  ;; Configure built-in Emacs features
-  (use-package emacs
-    :ensure nil
-    :config
-    (setq ring-bell-function #'ignore))
+    (require 'use-package)
+    ;; Force use-package to install missing packages via package.el by default
+    (setq use-package-always-ensure t)
+    (setq use-package-compute-statistics t)
+    ;; Configure built-in Emacs features
+    (use-package emacs
+      :ensure nil
+      :config
+      (setq ring-bell-function #'ignore))
 
 (setq modus-themes-common-palette-overrides
       '((comment "#888888")))
@@ -92,6 +93,7 @@
   (my/update-org-faces))
 (my/update-global-faces)
 
+;; Group minor modes together to avoid clutter 
 (use-package minions 
   :ensure t
   :hook (after-init . minions-mode)
@@ -997,63 +999,73 @@
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 
 (use-package org
-    :defer t
+  :defer t
 
-    :preface
-    (require 'cl-lib)
+  :preface
+  (require 'cl-lib)
 
-    (defun my/resize-org-latex-overlays ()
-      "Rescale existing SVG LaTeX previews after text scaling without busting disk cache."
-      (let* ((zoom-factor (expt text-scale-mode-step text-scale-mode-amount))
-             (base-scale 1.0)
-             (target-scale (* base-scale zoom-factor)))
-        (cl-loop
-         for o in (append (car (overlay-lists))
-                          (cdr (overlay-lists)))
-         when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
-         do
-         (let ((display (overlay-get o 'display)))
-           (when (and (consp display)
-                      (eq (car display) 'image))
-             (plist-put (cdr display) :scale target-scale))))))
+  (defun my/resize-org-latex-overlays ()
+    "Rescale existing SVG LaTeX previews after text scaling without busting disk cache."
+    (let* ((zoom-factor (expt text-scale-mode-step text-scale-mode-amount))
+           (base-scale 1.0)
+           (target-scale (* base-scale zoom-factor)))
+      (cl-loop
+       for o in (append (car (overlay-lists))
+                        (cdr (overlay-lists)))
+       when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+       do
+       (let ((display (overlay-get o 'display)))
+         (when (and (consp display)
+                    (eq (car display) 'image))
+           (setcdr display (plist-put (cdr display) :scale target-scale))
+           (setcdr display (plist-put (cdr display) :css "svg {fill: currentcolor;}")))))))
 
-    (defun my/org-latex-preview-toggle ()
-      "Toggle LaTeX previews using cached SVGs, scaling them to the current zoom level."
-      (interactive)
-      (let ((previews-exist (cl-some (lambda (o) (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay))
-                                     (append (car (overlay-lists)) (cdr (overlay-lists))))))
-        (if previews-exist
-            (org-latex-preview '(64))
-          (setq-local org-format-latex-options 
-                      (plist-put org-format-latex-options :scale 1.0))
-          (org-latex-preview '(16))
-          (my/resize-org-latex-overlays))))
+  (defun my/org-latex-preview-toggle ()
+    "Toggle LaTeX previews using cached SVGs, scaling them to the current zoom level."
+    (interactive)
+    (let ((previews-exist (cl-some (lambda (o) (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay))
+                                   (append (car (overlay-lists)) (cdr (overlay-lists))))))
+      (if previews-exist
+          (org-latex-preview '(64))
+        (setq-local org-format-latex-options 
+                    (plist-put org-format-latex-options :scale 1.0))
+        (org-latex-preview '(16))
+        (my/resize-org-latex-overlays))))
 
-    :hook
-    ((org-mode . (lambda ()
-                   (org-indent-mode)
-                   (setq-local electric-pair-inhibit-predicate
-                               (lambda (c)
-                                 (if (char-equal c ?<)
-                                     t
-                                   (electric-pair-default-inhibit c))))))
-     (org-mode . (lambda ()
-                   (add-hook 'text-scale-mode-hook #'my/resize-org-latex-overlays nil t)))
-     (org-mode . (lambda ()
-                   ;; Locks the scale option to 1.0 buffer-locally whenever an Org file is opened
-                   (setq org-format-latex-options 
-                         (plist-put (plist-put (plist-put org-format-latex-options :foreground nil) 
-                                               :background nil) 
-                                    :scale 1.0)))))
-    :config
-    ;; Use dvisvgm to generate high-quality SVG vector previews
-    (setq org-preview-latex-default-process 'dvisvgm)
-    (setq org-hide-leading-stars t)
-    (setq org-pretty-entities t)
-    (setq org-confirm-babel-evaluate nil)
-    ;; (setq org-highlight-latex-and-related '(latex script entities))
-    (setq org-highlight-latex-and-related nil)
-    (setq org-hide-emphasis-markers t))
+  (defun my/org-mode-setup ()
+    "Consolidated hook setup for Org mode buffers."
+    (org-indent-mode)
+    (setq-local electric-pair-inhibit-predicate
+                (lambda (c)
+                  (if (char-equal c ?<)
+                      t
+                    (electric-pair-default-inhibit c))))
+    (add-hook 'text-scale-mode-hook #'my/resize-org-latex-overlays nil t)
+    ;; Locks the scale option to 1.0 buffer-locally whenever an Org file is opened
+    (setq org-format-latex-options 
+          (plist-put (plist-put (plist-put org-format-latex-options :foreground nil) 
+                                :background nil) 
+                     :scale 1.0)))
+
+  :hook
+  (org-mode . my/org-mode-setup)
+
+  :config
+  ;; Use dvisvgm to generate high-quality SVG vector previews
+  (setq org-preview-latex-default-process 'dvisvgm)
+  (setq org-hide-leading-stars t)
+  (setq org-pretty-entities t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-highlight-latex-and-related nil)
+  (setq org-hide-emphasis-markers t)
+  
+  ;; Catch standard org-latex-preview generation to inject the SVG color fix globally
+  (advice-add 'org--make-preview-overlay :filter-args
+              (lambda (args)
+                (let ((image (nth 2 args)))
+                  (when (and (consp image) (eq (car image) 'image))
+                    (setcdr image (plist-put (cdr image) :css "svg {fill: currentcolor;}")))
+                  args))))
 
 
   (use-package org-superstar
@@ -1284,6 +1296,9 @@
 ;; (setq interprogram-cut-function 'wl-copy)
 ;; (setq interprogram-paste-function 'wl-paste)
 
+;; Enable system Trash
+(setq delete-by-moving-to-trash t)
+
 (setq shr-color nil)
 
 (global-hl-line-mode 1)
@@ -1297,12 +1312,12 @@
 
 (save-place-mode 1)
 
-(desktop-save-mode 1)
+;; (desktop-save-mode 1)
 
 (setq ispell-alternate-dictionary "/usr/share/dict/words")
 
-(setq split-width-threshold 0
-      split-height-threshold nil)
+;; (setq split-width-threshold 0
+;;       split-height-threshold nil)
 
 ;;; Treesitter
 (setq treesit-language-source-alist
@@ -1555,9 +1570,11 @@
     
     ;; Dired / Directory management 
     "dd" #'consult-dir
+    "ds" #'zoxide-travel
     "de" #'dired
     "dj" #'dired-jump
     "do" #'dired-other-window
+    "df" #'find-name-dired
     "df" #'find-name-dired
 
     ;; Editing
@@ -1603,7 +1620,6 @@
 
     ;; Zoxide
     "zz" #'zoxide-travel
-    "zr" #'zoxide-run
     "zR" #'zoxide-remove
     "za" #'zoxide-add
     "zf" #'zoxide-find-file
@@ -1759,6 +1775,7 @@
     :keymaps 'org-mode-map
     :states '(normal visual)
     "cb" #'org-toggle-checkbox
+    "cc" #'org-ctrl-c-ctrl-c
     "ee" #'org-emphasize
     "xx" #'org-toggle-checkbox
     "th" #'org-toggle-heading
@@ -1772,6 +1789,7 @@
     "nl" #'org-roam-buffer-toggle
     "cp" #'my/org-insert-image-from-clipboard
     "il" #'org-insert-link
+    "it" #'org-insert-link
     "tp" #'org-toggle-inline-images
     "tt" #'org-todo
     "ts" #'org-schedule
@@ -1898,26 +1916,29 @@
  "i" 'evil-insert)
 
 (use-package ghostel
-  :ensure t)
+      :ensure t)
 
-(add-hook 'shell-mode-hook
-          (lambda ()
-            (shell-dirtrack-mode 1)))
+    (add-hook 'shell-mode-hook
+              (lambda ()
+                (shell-dirtrack-mode 1)))
 
-(setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+    (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
 
-(with-eval-after-load 'eshell
-  (defun my-newline-eshell-prompt ()
-    (concat
-     ;; Line 1: Full path with home directory abbreviated to ~
-     (abbreviate-file-name (eshell/pwd))
-     ;; Move to the next line
-     "\n"
-     ;; Line 2: Prompt symbol based on user privileges
-     (if (= (user-uid) 0) "# " "$ ")))
+    (with-eval-after-load 'eshell
+      (defun my-newline-eshell-prompt ()
+        (concat
+         ;; Line 1: Full path with home directory abbreviated to ~
+         (abbreviate-file-name (eshell/pwd))
+         ;; Move to the next line
+         "\n"
+         ;; Line 2: Prompt symbol based on user privileges
+         (if (= (user-uid) 0) "# " "$ ")))
 
-  ;; Apply the multi-line prompt function
-  (setq eshell-prompt-function #'my-newline-eshell-prompt)
-  
-  ;; Update regexp to match the prompt on its own line
-  (setq eshell-prompt-regexp "^[#$] "))
+      ;; Apply the multi-line prompt function
+      (setq eshell-prompt-function #'my-newline-eshell-prompt)
+      
+      ;; Update regexp to match the prompt on its own line
+      (setq eshell-prompt-regexp "^[#$] "))
+
+;; Suppress lexical-binding warnings for system-installed files
+(setq warning-suppress-types '((files lexical-binding)))

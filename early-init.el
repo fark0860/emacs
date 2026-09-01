@@ -1,3 +1,12 @@
+;; -*- lexical-binding: t; -*-
+(setq warning-inhibit-types '((files missing-lexbind-cookie)))
+
+;; I started with this, doesn't seem to work. The checks seem
+;; to happen at a lower level, but mentioning this here in case
+;; that changes in the future.
+(setq warning-suppress-types '((lexical-binding)))
+
+
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq package-enable-at-startup nil)
 ;; Set the theme before the GUI loads to avoid flash

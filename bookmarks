@@ -3,11 +3,11 @@
 ;;; nevertheless, you probably don't want to edit it.
 ;;; -*- End Of Bookmark File Format Version Stamp -*-
 (("agenda-dump"
- (filename . "~/org-agenda/dump.org")
- (front-context-string . "* Ideas\n** TODO ")
- (rear-context-string)
- (position . 1)
- (last-modified 27202 3317 173591 824000))
+  (filename . "~/org-agenda/dump.org")
+  (front-context-string . "* Ideas\n** TODO ")
+  (rear-context-string)
+  (position . 1)
+  (last-modified 27202 3317 173591 824000))
 ("agenda-phd"
  (filename . "~/org-agenda/phd-applications.org")
  (front-context-string . "\n\n** Germany \n\n*")
@@ -61,11 +61,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-notes/20260818000834-emacs_calc.org")
- (front-context-string . "#+filetags: :cal")
- (rear-context-string . "tle: Emacs Calc\n")
- (position . 88)
- (last-modified 27267 21850 73531 429000))
+ (filename . "~/org-agenda/remember.org")
+ (front-context-string . "* New Stuff \n  L")
+ (rear-context-string . "eground-color'.\n")
+ (position . 4635)
+ (last-modified 27286 35176 770671 527000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")
