@@ -18,8 +18,8 @@
 			   evil-collection evil-escape evil-nerd-commenter flash
 			   general ghostel gnuplot julia-repl julia-ts-mode laas
 			   magit marginalia markdown-mode minions nov orderless
-			   org-roam org-superstar toc-org transient treesit-auto
-			   vertico vundo with-editor yasnippet-capf
+			   org-roam org-superstar pdf-tools toc-org transient
+			   treesit-auto vertico vundo with-editor yasnippet-capf
 			   yasnippet-snippets zoxide))
  '(preview-scale-function 1.0 t))
 (custom-set-faces
@@ -27,4 +27,13 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(font-lock-comment-face ((t (:slant italic)))))
+ '(font-lock-comment-face ((t (:slant italic))))
+ '(mode-line ((t (:height 0.7))))
+ '(mode-line-active ((t (:height 0.7))))
+ '(mode-line-inactive ((t (:height 0.7))))
+ '(org-level-1 ((t (:height 1.5 :weight bold))))
+ '(org-level-2 ((t (:height 1.4 :weight bold))))
+ '(org-level-3 ((t (:height 1.3 :weight semi-bold))))
+ '(org-level-4 ((t (:height 1.2 :weight bold))))
+ '(org-level-5 ((t (:height 1.1 :weight bold))))
+ '(org-tag ((t (:foreground unspecified :background unspecified :box nil :weight normal)))))

@@ -986,6 +986,85 @@
   :commands toc-org-enable
   :init (add-hook 'org-mode-hook 'toc-org-enable))
 
+;; (use-package org
+  ;;         :defer t
+
+  ;;         :preface
+  ;;         (require 'cl-lib)
+
+  ;;         (defun my/resize-org-latex-overlays ()
+  ;;           "Rescale existing SVG LaTeX previews after text scaling without busting disk cache."
+  ;;           (let* ((zoom-factor (expt text-scale-mode-step text-scale-mode-amount))
+  ;;                  (base-scale 1.0)
+  ;;                  (target-scale (* base-scale zoom-factor)))
+  ;;             (cl-loop
+  ;;              for o in (append (car (overlay-lists))
+  ;;                               (cdr (overlay-lists)))
+  ;;              when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+  ;;              do
+  ;;              (let ((display (overlay-get o 'display)))
+  ;;                (when (and (consp display)
+  ;;                           (eq (car display) 'image))
+  ;;                  (setcdr display (plist-put (cdr display) :scale target-scale))
+  ;;                  (setcdr display (plist-put (cdr display) :css "svg {fill: currentcolor;}")))))))
+
+  ;;         (defun my/org-latex-preview-toggle ()
+  ;;           "Toggle LaTeX previews using cached SVGs, scaling them to the current zoom level."
+  ;;           (interactive)
+  ;;           (let ((previews-exist (cl-some (lambda (o) (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay))
+  ;;                                          (append (car (overlay-lists)) (cdr (overlay-lists))))))
+  ;;             (if previews-exist
+  ;;                 (org-latex-preview '(64))
+  ;;               (setq-local org-format-latex-options 
+  ;;                           (plist-put org-format-latex-options :scale 1.0))
+  ;;               (org-latex-preview '(16))
+  ;;               (my/resize-org-latex-overlays))))
+
+  ;;         (defun my/org-mode-setup ()
+  ;;           "Consolidated hook setup for Org mode buffers."
+  ;;           (org-indent-mode)
+  ;;           (setq-local electric-pair-inhibit-predicate
+  ;;                       (lambda (c)
+  ;;                         (if (char-equal c ?<)
+  ;;                             t
+  ;;                           (electric-pair-default-inhibit c))))
+  ;;           (add-hook 'text-scale-mode-hook #'my/resize-org-latex-overlays nil t)
+  ;;           ;; Locks the scale option to 1.0 buffer-locally whenever an Org file is opened
+  ;;           (setq org-format-latex-options 
+  ;;                 (plist-put (plist-put (plist-put org-format-latex-options :foreground nil) 
+  ;;                                       :background nil) 
+  ;;                            :scale 1.0)))
+
+  ;;         :hook
+  ;;         (org-mode . my/org-mode-setup)
+
+  ;;         :config
+  ;;         ;; Use dvisvgm to generate high-quality SVG vector previews
+  ;;         (setq org-preview-latex-default-process 'dvisvgm)
+  ;;         (setq org-hide-leading-stars t)
+  ;;         (setq org-pretty-entities t)
+  ;;         (setq org-confirm-babel-evaluate nil)
+  ;;         (setq org-highlight-latex-and-related nil)
+  ;;         (setq org-hide-emphasis-markers t))
+          
+  ;; (defun my/org-fix-latex-svg-colors ()
+  ;;   "Make Org LaTeX SVG previews inherit the surrounding text color."
+  ;;   (dolist (o (overlays-in (point-min) (point-max)))
+  ;;     (when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+  ;;       (let ((display (overlay-get o 'display)))
+  ;;         (when (and (consp display)
+  ;;                    (eq (car display) 'image))
+  ;;           (setcdr display
+  ;;                   (plist-put (cdr display)
+  ;;                              :css "svg { fill: currentcolor; }")))))))
+
+  ;; (advice-add 'org-latex-preview :after
+  ;;             (lambda (&rest _)
+  ;;               (my/org-fix-latex-svg-colors)))
+
+
+
+
 (use-package org
   :defer t
 
@@ -993,174 +1072,144 @@
   (require 'cl-lib)
 
   (defun my/resize-org-latex-overlays ()
-    "Rescale existing SVG LaTeX previews after text scaling without busting disk cache."
-    (let* ((zoom-factor (expt text-scale-mode-step text-scale-mode-amount))
-           (base-scale 1.0)
-           (target-scale (* base-scale zoom-factor)))
-      (cl-loop
-       for o in (append (car (overlay-lists))
-                        (cdr (overlay-lists)))
-       when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
-       do
-       (let ((display (overlay-get o 'display)))
-         (when (and (consp display)
-                    (eq (car display) 'image))
-           (setcdr display (plist-put (cdr display) :scale target-scale))
-           (setcdr display (plist-put (cdr display) :css "svg {fill: currentcolor;}")))))))
+    "Rescale Org LaTeX SVG previews and make them inherit text color."
+    (let ((scale (expt text-scale-mode-step text-scale-mode-amount)))
+      (dolist (o (overlays-in (point-min) (point-max)))
+        (when (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay)
+          (let ((display (overlay-get o 'display)))
+            (when (and (consp display)
+                       (eq (car display) 'image))
+              (setcdr display
+                      (plist-put
+                       (plist-put (cdr display)
+                                  :scale scale)
+                       :css "svg { fill: currentcolor; }"))))))))
 
   (defun my/org-latex-preview-toggle ()
-    "Toggle LaTeX previews using cached SVGs, scaling them to the current zoom level."
+    "Toggle LaTeX previews, using cached SVGs and current text scale."
     (interactive)
-    (let ((previews-exist (cl-some (lambda (o) (eq (overlay-get o 'org-overlay-type) 'org-latex-overlay))
-                                   (append (car (overlay-lists)) (cdr (overlay-lists))))))
-      (if previews-exist
-          (org-latex-preview '(64))
-        (setq-local org-format-latex-options 
-                    (plist-put org-format-latex-options :scale 1.0))
-        (org-latex-preview '(16))
-        (my/resize-org-latex-overlays))))
+    (if (cl-some (lambda (o)
+                   (eq (overlay-get o 'org-overlay-type)
+                       'org-latex-overlay))
+                 (overlays-in (point-min) (point-max)))
+        (org-latex-preview '(64))
+      (setq-local org-format-latex-options
+                  (plist-put org-format-latex-options :scale 1.0))
+      (org-latex-preview '(16))
+      (my/resize-org-latex-overlays)))
 
   (defun my/org-mode-setup ()
-    "Consolidated hook setup for Org mode buffers."
+    "Set up Org mode."
     (org-indent-mode)
-    (setq-local electric-pair-inhibit-predicate
-                (lambda (c)
-                  (if (char-equal c ?<)
-                      t
-                    (electric-pair-default-inhibit c))))
-    (add-hook 'text-scale-mode-hook #'my/resize-org-latex-overlays nil t)
-    ;; Locks the scale option to 1.0 buffer-locally whenever an Org file is opened
-    (setq org-format-latex-options 
-          (plist-put (plist-put (plist-put org-format-latex-options :foreground nil) 
-                                :background nil) 
-                     :scale 1.0)))
+
+    (setq-local
+     electric-pair-inhibit-predicate
+     (lambda (c)
+       (if (char-equal c ?<)
+           t
+         (electric-pair-default-inhibit c))))
+
+    (add-hook 'text-scale-mode-hook
+              #'my/resize-org-latex-overlays
+              nil t)
+
+    (setq-local
+     org-format-latex-options
+     (plist-put
+      (plist-put
+       (plist-put org-format-latex-options
+                  :foreground nil)
+       :background nil)
+      :scale 1.0)))
 
   :hook
   (org-mode . my/org-mode-setup)
 
   :config
-  ;; Use dvisvgm to generate high-quality SVG vector previews
+  ;; High-quality vector previews.
   (setq org-preview-latex-default-process 'dvisvgm)
-  (setq org-hide-leading-stars t)
-  (setq org-pretty-entities t)
-  (setq org-confirm-babel-evaluate nil)
-  (setq org-highlight-latex-and-related nil)
-  (setq org-hide-emphasis-markers t)
+
+  (setq org-hide-leading-stars t
+        org-pretty-entities t
+        org-confirm-babel-evaluate nil
+        org-highlight-latex-and-related nil
+        org-hide-emphasis-markers t)
+
+  ;; Emacs 31: SVG foreground is no longer automatically inherited.
+  (advice-add 'org-latex-preview :after
+              (lambda (&rest _)
+                (my/resize-org-latex-overlays))))
+
+
+
   
-  ;; Catch standard org-latex-preview generation to inject the SVG color fix globally
-  (advice-add 'org--make-preview-overlay :filter-args
-              (lambda (args)
-                (let ((image (nth 2 args)))
-                  (when (and (consp image) (eq (car image) 'image))
-                    (setcdr image (plist-put (cdr image) :css "svg {fill: currentcolor;}")))
-                  args))))
+    
+
+          (use-package org-superstar
+            :ensure t
+            :hook (org-mode . org-superstar-mode)
+            :config
+            (setq org-superstar-headline-bullets-list '("❖"))
+            (setq org-superstar-item-bullet-alist
+                  '((?+ . ?•)
+          		  (?* . ?✶)
+                    (?- . ?➔))))
 
 
-  (use-package org-superstar
-    :ensure t
-    :hook (org-mode . org-superstar-mode)
-    :config
-    (setq org-superstar-headline-bullets-list '("❖"))
-    (setq org-superstar-item-bullet-alist
-          '((?+ . ?•)
-  		  (?* . ?✶)
-            (?- . ?➔))))
+          (use-package gnuplot
+            :ensure t
+            :defer t)
 
+          ;;; org link to specific pdf page
+          (with-eval-after-load 'org
+            (setq org-file-apps
+                  (append '(("\\.pdf::\\([0-9]+\\)\\'" . "okular -p %1 %s")
+                            ("\\.pdf\\'" . "okular %s"))
+                          org-file-apps)))
 
-  (use-package gnuplot
-    :ensure t
-    :defer t)
-
-  ;;; org link to specific pdf page
-  (with-eval-after-load 'org
-    (setq org-file-apps
-          (append '(("\\.pdf::\\([0-9]+\\)\\'" . "zathura -p %1 %s")
-                    ("\\.pdf\\'" . "zathura %s"))
-                  org-file-apps)))
-
-  (add-hook 'org-mode-hook #'visual-line-mode) ; clean line wrapping
+          (add-hook 'org-mode-hook #'visual-line-mode) ; clean line wrapping
 
 
 
-;; ;;;; Org Capture 
-;; (setq org-agenda-files '("~/org-agenda/"))
+        (setq org-agenda-files '("~/org-agenda/"))
 
-;; (setq org-capture-templates
-;;     '(;; --- General TODO (Top Level) ---
-;;       ("t" "General TODO" entry 
-;;        (file "~/org-agenda/todo.org")
-;;        "* TODO %?\n  Logged on: %u\n  Context file: [[file:%f]]\n\n  %i")
+        ;; --- Org Capture ---
+        (setq org-capture-templates
+              '(;; --- General TODO ---
+                ("t" "General TODO" entry 
+                 (file "~/org-agenda/todo.org")
+                 "* TODO %?\n  Logged on: %u\n  Context file: [[file:%f]]\n\n  %i")
 
-;;       ;; --- Daily Task ---
-;;       ("d" "Daily Task" checkitem 
-;;        (file+headline "~/org-agenda/daily.org" "Daily Tasks")
-;;        "%?\n  SCHEDULED: %^t")
+                ;; --- Daily Task (Auto-scheduled for today) ---
+              ("d" "Daily Task" entry 
+         (file+headline "~/org-agenda/todo.org" "Daily Tasks")
+         "* TODO %?\nSCHEDULED: %t DEADLINE: %(concat \"<\" (format-time-string (car org-time-stamp-formats) (org-read-date nil t \"+sun\")) \">\")")
 
-;;       ;; --- Unsorted Project Capture (Top Level) ---
-;;       ("p" "Project Task to Refile Later" entry
-;;        (file+headline "~/org-agenda/dump.org" "Projects")
-;;        "* TODO %?\n  Logged on: %u")
+                ;; --- Unsorted Capture ---
+                ("c" "Custom Task to Refile" entry
+                 (file "~/org-agenda/dump.org")
+                 "* TODO %?\n  Logged on: %u")
 
-;;       ("i" "Idea To Refile Later" entry
-;;        (file+headline "~/org-agenda/dump.org" "Ideas")
-;;        "* TODO %?\n  Logged on: %u")
+                ("i" "Idea" entry
+                 (file "~/org-agenda/ideas.org")
+                 "* %?\n  Logged on: %u")
 
-;;       ;; --- Brain Dumps (Top Level - No Minibuffer Prompt) ---
-;;       ("r" "Remember / Clipboard" entry 
-;;        (file "~/org-agenda/remember.org")
-;;        "* %?\n  Logged: %u\n  Context file: [[file:%f]]\n\n  %i")))
+                ;; --- Brain Dump / Reference ---
+                ("r" "Remember / Clipboard" entry 
+                 (file "~/org-agenda/remember.org")
+                 "* %?\n  Logged: %u\n  Context file: [[file:%f]]\n\n  %i")))
 
-;; ;; --- Core Engine & Logging Features ---
-;; (setq org-log-done 'time)
+        ;; --- Core Engine & Logging ---
+        (setq org-log-done 'time)
 
-;; ;; Configure refile mechanics to dynamically create parent targets up to level 3
-;; (setq org-refile-targets '((org-agenda-files :maxlevel . 3)))
-;; (setq org-refile-allow-creating-parent-nodes 'confirm)
-;; (setq org-refile-use-outline-path 'file)
-;; (setq org-outline-path-complete-in-steps nil)
+        ;; --- Refile Targets ---
+        ;; Refile across ALL org files in directory (including remember.org and Ideas.org)
+        (setq org-refile-targets
+              `((,(directory-files-recursively "~/org-agenda/" "\\.org$") :maxlevel . 3)))
 
-
-
-
-(setq org-agenda-files '("~/org-agenda/"))
-
-;; --- Org Capture ---
-(setq org-capture-templates
-      '(;; --- General TODO ---
-        ("t" "General TODO" entry 
-         (file "~/org-agenda/todo.org")
-         "* TODO %?\n  Logged on: %u\n  Context file: [[file:%f]]\n\n  %i")
-
-        ;; --- Daily Task (Auto-scheduled for today) ---
-      ("d" "Daily Task" entry 
- (file+headline "~/org-agenda/todo.org" "Daily Tasks")
- "* TODO %?\nSCHEDULED: %t DEADLINE: %(concat \"<\" (format-time-string (car org-time-stamp-formats) (org-read-date nil t \"+sun\")) \">\")")
-
-        ;; --- Unsorted Capture ---
-        ("c" "Custom Task to Refile" entry
-         (file "~/org-agenda/dump.org")
-         "* TODO %?\n  Logged on: %u")
-
-        ("i" "Idea" entry
-         (file "~/org-agenda/ideas.org")
-         "* %?\n  Logged on: %u")
-
-        ;; --- Brain Dump / Reference ---
-        ("r" "Remember / Clipboard" entry 
-         (file "~/org-agenda/remember.org")
-         "* %?\n  Logged: %u\n  Context file: [[file:%f]]\n\n  %i")))
-
-;; --- Core Engine & Logging ---
-(setq org-log-done 'time)
-
-;; --- Refile Targets ---
-;; Refile across ALL org files in directory (including remember.org and Ideas.org)
-(setq org-refile-targets
-      `((,(directory-files-recursively "~/org-agenda/" "\\.org$") :maxlevel . 3)))
-
-(setq org-refile-allow-creating-parent-nodes 'confirm)
-(setq org-refile-use-outline-path 'file)
-(setq org-outline-path-complete-in-steps nil)
+        (setq org-refile-allow-creating-parent-nodes 'confirm)
+        (setq org-refile-use-outline-path 'file)
+        (setq org-outline-path-complete-in-steps nil)
 
 (defun my/org-insert-image-from-clipboard ()
 "Save the latest image from the Wayland clipboard and insert it as an absolute file link at point."
@@ -1590,6 +1639,7 @@
     "M-m h" #'font-lock-mode
     "M-m l" #'my/toggle-line-numbers
     "M-m m" #'my/toggle-mode-line
+    "M-m M" #'menu-bar-mode
     "M-m z" #'my/zen-mode
     "M-m r" #'my/reading-mode
     "M-g r" #'my/rg-recent-files
@@ -1904,29 +1954,35 @@
  "i" 'evil-insert)
 
 (use-package ghostel
-      :ensure t)
+        :ensure t)
 
-    (add-hook 'shell-mode-hook
-              (lambda ()
-                (shell-dirtrack-mode 1)))
+      (add-hook 'shell-mode-hook
+                (lambda ()
+                  (shell-dirtrack-mode 1)))
 
-    (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+      (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
 
-    (with-eval-after-load 'eshell
-      (defun my-newline-eshell-prompt ()
-        (concat
-         ;; Line 1: Full path with home directory abbreviated to ~
-         (abbreviate-file-name (eshell/pwd))
-         ;; Move to the next line
-         "\n"
-         ;; Line 2: Prompt symbol based on user privileges
-         (if (= (user-uid) 0) "# " "$ ")))
+      (with-eval-after-load 'eshell
+        (defun my-newline-eshell-prompt ()
+          (concat
+           ;; Line 1: Full path with home directory abbreviated to ~
+           (abbreviate-file-name (eshell/pwd))
+           ;; Move to the next line
+           "\n"
+           ;; Line 2: Prompt symbol based on user privileges
+           (if (= (user-uid) 0) "# " "$ ")))
 
-      ;; Apply the multi-line prompt function
-      (setq eshell-prompt-function #'my-newline-eshell-prompt)
-      
-      ;; Update regexp to match the prompt on its own line
-      (setq eshell-prompt-regexp "^[#$] "))
+        ;; Apply the multi-line prompt function
+        (setq eshell-prompt-function #'my-newline-eshell-prompt)
+        
+        ;; Update regexp to match the prompt on its own line
+        (setq eshell-prompt-regexp "^[#$] "))
 
-;; Suppress lexical-binding warnings for system-installed files
-(setq warning-suppress-types '((files lexical-binding)))
+  ;; Suppress lexical-binding warnings for system-installed files
+  (setq warning-suppress-types '((files lexical-binding)))
+
+(use-package pdf-tools
+  :ensure t
+  :config
+  (pdf-tools-install :no-query)
+  (setq-default pdf-view-display-size 'fit-page))

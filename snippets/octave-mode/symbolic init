@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: symbolic init
+# key: ;sym
+# --
+pkg load symbolic
+syms ${1:variables}
+$0
