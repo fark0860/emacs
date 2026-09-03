@@ -18,9 +18,9 @@
 			   evil-collection evil-escape evil-nerd-commenter flash
 			   general ghostel gnuplot julia-repl julia-ts-mode laas
 			   magit marginalia markdown-mode minions nov orderless
-			   org-roam org-superstar pdf-tools toc-org transient
-			   treesit-auto vertico vundo with-editor yasnippet-capf
-			   yasnippet-snippets zoxide))
+			   org-habit-stats org-roam org-superstar pdf-tools
+			   toc-org transient treesit-auto vertico vundo
+			   with-editor yasnippet-capf yasnippet-snippets zoxide))
  '(preview-scale-function 1.0 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

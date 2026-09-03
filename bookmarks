@@ -61,11 +61,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-agenda/remember.org")
- (front-context-string . "* New Stuff \n  L")
- (rear-context-string . "eground-color'.\n")
- (position . 4635)
- (last-modified 27286 35176 770671 527000))
+ (filename . "~/org-notes/20260903004500-reading_list.org")
+ (front-context-string . "\n\n\n* Manhua\n- Ch")
+ (rear-context-string . "e: Reading List\n")
+ (position . 90)
+ (last-modified 27288 30634 449242 409000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")
