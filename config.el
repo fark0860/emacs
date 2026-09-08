@@ -1074,11 +1074,6 @@
               (lambda (&rest _)
                 (my/resize-org-latex-overlays))))
 
-
-
-
-
-
 (use-package org-superstar
   :ensure t
   :hook (org-mode . org-superstar-mode)
@@ -1089,12 +1084,11 @@
           (?* . ?✶)
           (?- . ?➔))))
 
-
 (use-package gnuplot
   :ensure t
   :defer t)
 
-          ;;; org link to specific pdf page
+;;; org link to specific pdf page
 (with-eval-after-load 'org
   (setq org-file-apps
         (append '(("\\.pdf::\\([0-9]+\\)\\'" . "okular -p %1 %s")
@@ -1102,8 +1096,6 @@
                 org-file-apps)))
 
 (add-hook 'org-mode-hook #'visual-line-mode) ; clean line wrapping
-
-
 
 (setq org-agenda-files '("~/org-agenda/"))
 
@@ -1927,3 +1919,4 @@
 :after org
 :config
 (setq org-habit-stats-future-days 0))
+(setq org-extend-today-until 4)

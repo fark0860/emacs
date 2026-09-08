@@ -61,11 +61,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-notes/20260903004500-reading_list.org")
- (front-context-string . "\n\n\n* Manhua\n- Ch")
- (rear-context-string . "e: Reading List\n")
- (position . 90)
- (last-modified 27288 30634 449242 409000))
+ (filename . "~/org-notes/20260906133544-important_thing_to_learn_later.org")
+ (front-context-string)
+ (rear-context-string . " to learn later\n")
+ (position . 108)
+ (last-modified 27293 7898 565387 576000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")

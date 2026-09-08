@@ -1,6 +1,8 @@
 #+TITLE:A GNU Emacs Config
 #+AUTHOR: Kay Zero
 #+DESCRIPTION: k's personal Emacs config.
+#+STARTUP: overview
+
 
 * Index :toc:
 - [[#startup-bootstrap][Startup Bootstrap]]
@@ -246,7 +248,6 @@ Blasphemy!!!
     :config
     (evil-escape-mode 1)) 
 #+end_src
-
 
 * Completion Framework (Modern)
 ** Overview
@@ -601,7 +602,6 @@ Sorting In Dired. Also can be done with C-u s --> "-l<>" =note -l is required=
               (add-hook 'eldoc-documentation-functions #'my/elisp-docs nil t)))
 #+end_src
 
-
 * Embark
 Provides actions on selection targets in buffer/minibuffer (kind of like a right click context menu)
 #+begin_src emacs-lisp
@@ -703,8 +703,6 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
   (add-hook 'text-mode-hook #'outline-minor-mode)
 
 #+end_src
-
-
 
 * Languages
 ** Bash
@@ -918,8 +916,6 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 
 #+RESULTS:
 : org-table-align
-
-
 
 * Magit
 
@@ -1409,8 +1405,6 @@ here we set the following
     (setq org-link-frame-setup
   		'((file . find-file))))
 #+end_src
-
-
 
 * Sane Defaults
 ** Fixing emacs wierdness
@@ -2241,7 +2235,6 @@ Using Emacs-Style keybindings
    "i" 'evil-insert)
 #+end_src
 
-
 * Testing
 
 #+begin_src emacs-lisp
@@ -2285,4 +2278,5 @@ Using Emacs-Style keybindings
   :after org
   :config
   (setq org-habit-stats-future-days 0))
+  (setq org-extend-today-until 4)
 #+end_src
