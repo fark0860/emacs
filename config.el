@@ -338,7 +338,7 @@
          ("C-x C-j" . consult-dir-jump-file)))
 
 ;;; LSP and Completion
-  ;;;; Core LSP: Eglot (built-in, fast)
+    ;;;; Core LSP: Eglot (built-in, fast)
 (use-package eglot
   :defer t
   :custom
@@ -347,9 +347,8 @@
   (eglot-autoshutdown t)           ; Kill idle servers
   (eglot-ignored-server-capabilities '(:documentHighlightProvider))  ; Skip unused
   :hook
-  ;; Enable in Tree-sitter modes
-  (((prog-mode text-mode) . eglot-ensure)
-   (python-ts-mode . eglot-ensure)
+  ;; Enable in Tree-sitter modes (Note: text-mode and prog-mode base hook removed)
+  ((python-ts-mode . eglot-ensure)
    (lua-ts-mode . eglot-ensure)
    (js-ts-mode . eglot-ensure)
    (typescript-ts-mode . eglot-ensure)
@@ -359,68 +358,71 @@
   ;; Override the default Digestif setting to make TexLab default
   (add-to-list 'eglot-server-programs
                '((tex-mode context-mode texinfo-mode bibtex-mode
-						   latex-mode LaTeX-mode plain-tex-mode) . ("texlab"))))
+                           latex-mode LaTeX-mode plain-tex-mode) . ("texlab")))
+  
+  ;; Register harper-ls for text, markdown, and org modes without auto-starting
+  (add-to-list 'eglot-server-programs
+               '((text-mode markdown-mode org-mode) . ("harper-ls" "--stdio"))))
 
 
-
-  ;;;; popup completion: Corfu
-(use-package corfu
-  :ensure t
-  :custom
-  (corfu-auto t)                   ; Auto popup
-  (corfu-cycle t)                  ; Cycle candidates
-  (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
-  (corfu-quit-no-match t)          ; Quit if no match
-  :config
-  (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
-  (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
-  (global-corfu-mode)
-  (corfu-popupinfo-mode)
-  (corfu-history-mode))
-
-
-  ;;; Snippets
-  ;;;; Yasnippet
-(use-package yasnippet
-  :ensure t
-  :defer t
-  :config
-  (yas-global-mode 1))  ;; Enable Yasnippet globally
-
-  ;;;; Yasnippets Collection
-(use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
-  :ensure t)
-
-(use-package yasnippet-capf
-  :ensure t
-  :after (yasnippet cape))
-
-  ;;;; cape capfs
-(use-package cape
-  :ensure t
-  :init
-  ;; Add general Cape completions
-  (add-hook 'completion-at-point-functions #'cape-file)
-  (add-hook 'completion-at-point-functions #'cape-dabbrev)
-  (add-hook 'completion-at-point-functions #'cape-elisp-block)
-  (add-hook 'completion-at-point-functions #'cape-history)
-  )
+    ;;;; popup completion: Corfu
+  (use-package corfu
+    :ensure t
+    :custom
+    (corfu-auto t)                   ; Auto popup
+    (corfu-cycle t)                  ; Cycle candidates
+    (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
+    (corfu-quit-no-match t)          ; Quit if no match
+    :config
+    (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
+    (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
+    (global-corfu-mode)
+    (corfu-popupinfo-mode)
+    (corfu-history-mode))
 
 
-(defun my/eglot-capf ()
-  (when (eglot-managed-p)
-    (eglot-completion-at-point)))
+    ;;; Snippets
+    ;;;; Yasnippet
+  (use-package yasnippet
+    :ensure t
+    :defer t
+    :config
+    (yas-global-mode 1))  ;; Enable Yasnippet globally
 
-(defun my/eglot-completion-setup ()
-  (setq-local completion-at-point-functions
-              (append
-               (list
-                (cape-capf-super
-                 #'yasnippet-capf
-                 #'my/eglot-capf))
-               completion-at-point-functions)))
+    ;;;; Yasnippets Collection
+  (use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
+    :ensure t)
 
-(add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
+  (use-package yasnippet-capf
+    :ensure t
+    :after (yasnippet cape))
+
+    ;;;; cape capfs
+  (use-package cape
+    :ensure t
+    :init
+    ;; Add general Cape completions
+    (add-hook 'completion-at-point-functions #'cape-file)
+    (add-hook 'completion-at-point-functions #'cape-dabbrev)
+    (add-hook 'completion-at-point-functions #'cape-elisp-block)
+    (add-hook 'completion-at-point-functions #'cape-history)
+    )
+
+
+  (defun my/eglot-capf ()
+    (when (eglot-managed-p)
+      (eglot-completion-at-point)))
+
+  (defun my/eglot-completion-setup ()
+    (setq-local completion-at-point-functions
+                (append
+                 (list
+                  (cape-capf-super
+                   #'yasnippet-capf
+                   #'my/eglot-capf))
+                 completion-at-point-functions)))
+
+  (add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
 
 ;; Color Inserter Setup
   (use-package my-insert-colors
@@ -1546,6 +1548,7 @@
     ;; Code Actions
     "cr" #'eglot-rename
     "cf" #'eglot-format
+    "ca" #'eglot-code-actions
     "ce" #'consult-flymake
     "c[" #'flymake-goto-prev-error
     "c]" #'flymake-goto-next-error

@@ -3,7 +3,6 @@
 #+DESCRIPTION: k's personal Emacs config.
 #+STARTUP: overview
 
-
 * Index :toc:
 - [[#startup-bootstrap][Startup Bootstrap]]
   - [[#package-manager][Package manager]]
@@ -440,28 +439,30 @@ This section configures the LSP and completion setup:
 
     ;;; LSP and Completion
     ;;;; Core LSP: Eglot (built-in, fast)
-  (use-package eglot
-    :defer t
-    :custom
-    ;; Performance optimizations
-    (eglot-sync-connect 1)           ; Quick connect then async
-    (eglot-autoshutdown t)           ; Kill idle servers
-    (eglot-ignored-server-capabilities '(:documentHighlightProvider))  ; Skip unused
-    :hook
-    ;; Enable in Tree-sitter modes
-    (((prog-mode text-mode) . eglot-ensure)
-     (python-ts-mode . eglot-ensure)
-     (lua-ts-mode . eglot-ensure)
-     (js-ts-mode . eglot-ensure)
-     (typescript-ts-mode . eglot-ensure)
-     (julia-ts-mode . eglot-ensure)
-     (rust-ts-mode . eglot-ensure)) 
-    :config
-    ;; Override the default Digestif setting to make TexLab default
-    (add-to-list 'eglot-server-programs
-                 '((tex-mode context-mode texinfo-mode bibtex-mode
-  						   latex-mode LaTeX-mode plain-tex-mode) . ("texlab"))))
-
+(use-package eglot
+  :defer t
+  :custom
+  ;; Performance optimizations
+  (eglot-sync-connect 1)           ; Quick connect then async
+  (eglot-autoshutdown t)           ; Kill idle servers
+  (eglot-ignored-server-capabilities '(:documentHighlightProvider))  ; Skip unused
+  :hook
+  ;; Enable in Tree-sitter modes (Note: text-mode and prog-mode base hook removed)
+  ((python-ts-mode . eglot-ensure)
+   (lua-ts-mode . eglot-ensure)
+   (js-ts-mode . eglot-ensure)
+   (typescript-ts-mode . eglot-ensure)
+   (julia-ts-mode . eglot-ensure)
+   (rust-ts-mode . eglot-ensure)) 
+  :config
+  ;; Override the default Digestif setting to make TexLab default
+  (add-to-list 'eglot-server-programs
+               '((tex-mode context-mode texinfo-mode bibtex-mode
+                           latex-mode LaTeX-mode plain-tex-mode) . ("texlab")))
+  
+  ;; Register harper-ls for text, markdown, and org modes without auto-starting
+  (add-to-list 'eglot-server-programs
+               '((text-mode markdown-mode org-mode) . ("harper-ls" "--stdio"))))
 
 
     ;;;; popup completion: Corfu
@@ -1901,6 +1902,7 @@ Using Emacs-Style keybindings
       ;; Code Actions
       "cr" #'eglot-rename
       "cf" #'eglot-format
+      "ca" #'eglot-code-actions
       "ce" #'consult-flymake
       "c[" #'flymake-goto-prev-error
       "c]" #'flymake-goto-next-error
