@@ -339,6 +339,7 @@
 
 ;;; LSP and Completion
     ;;;; Core LSP: Eglot (built-in, fast)
+(setq ispell-personal-dictionary "~/.config/harper-ls/dictionary.txt")
 (use-package eglot
   :defer t
   :custom
@@ -362,7 +363,7 @@
   
   ;; Register harper-ls for text, markdown, and org modes without auto-starting
   (add-to-list 'eglot-server-programs
-               '((text-mode markdown-mode org-mode) . ("harper-ls" "--stdio"))))
+               '((text-mode markdown-mode) . ("harper-ls" "--stdio"))))
 
 
     ;;;; popup completion: Corfu
