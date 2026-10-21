@@ -19,7 +19,7 @@
 			   general ghostel gnuplot julia-repl julia-ts-mode laas
 			   magit marginalia markdown-mode minions nov orderless
 			   org-habit-stats org-roam org-superstar pdf-tools
-			   toc-org transient treesit-auto vertico vundo
+			   speed-type toc-org transient treesit-auto vertico vundo
 			   with-editor yasnippet-capf yasnippet-snippets zoxide))
  '(preview-scale-function 1.0 t))
 (custom-set-faces

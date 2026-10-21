@@ -339,7 +339,6 @@
 
 ;;; LSP and Completion
     ;;;; Core LSP: Eglot (built-in, fast)
-(setq ispell-personal-dictionary "~/.config/harper-ls/dictionary.txt")
 (use-package eglot
   :defer t
   :custom
@@ -365,65 +364,65 @@
   (add-to-list 'eglot-server-programs
                '((text-mode markdown-mode) . ("harper-ls" "--stdio"))))
 
-
     ;;;; popup completion: Corfu
-  (use-package corfu
-    :ensure t
-    :custom
-    (corfu-auto t)                   ; Auto popup
-    (corfu-cycle t)                  ; Cycle candidates
-    (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
-    (corfu-quit-no-match t)          ; Quit if no match
-    :config
-    (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
-    (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
-    (global-corfu-mode)
-    (corfu-popupinfo-mode)
-    (corfu-history-mode))
+(use-package corfu
+  :ensure t
+  :custom
+  (corfu-auto t)                   ; Auto popup
+  (corfu-cycle t)                  ; Cycle candidates
+  (corfu-auto-prefix 3)            ; No or chars before auto-pop-up shows
+  (corfu-quit-no-match t)          ; Quit if no match
+  :config
+  (setq corfu-auto-delay 0.5) ; Controls delay for popup-info-mode eldoc  
+  (setq corfu-popupinfo-delay 0.1) ; Controls delay for popup-info-mode eldoc  
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  (corfu-history-mode))
 
 
     ;;; Snippets
     ;;;; Yasnippet
-  (use-package yasnippet
-    :ensure t
-    :defer t
-    :config
-    (yas-global-mode 1))  ;; Enable Yasnippet globally
+(use-package yasnippet
+  :ensure t
+  :defer t
+  :config
+  (yas-global-mode 1))  ;; Enable Yasnippet globally
 
     ;;;; Yasnippets Collection
-  (use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
-    :ensure t)
+(use-package yasnippet-snippets  ;; Optional: Provides a collection of snippets
+  :ensure t)
 
-  (use-package yasnippet-capf
-    :ensure t
-    :after (yasnippet cape))
+(use-package yasnippet-capf
+  :ensure t
+  :after (yasnippet cape))
 
     ;;;; cape capfs
-  (use-package cape
-    :ensure t
-    :init
-    ;; Add general Cape completions
-    (add-hook 'completion-at-point-functions #'cape-file)
-    (add-hook 'completion-at-point-functions #'cape-dabbrev)
-    (add-hook 'completion-at-point-functions #'cape-elisp-block)
-    (add-hook 'completion-at-point-functions #'cape-history)
-    )
+(use-package cape
+  :ensure t
+  :init
+  ;; Add general Cape completions
+  (add-hook 'completion-at-point-functions #'cape-file)
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-elisp-block)
+  (add-hook 'completion-at-point-functions #'cape-emoji)
+  (add-hook 'completion-at-point-functions #'cape-history)
+  )
 
 
-  (defun my/eglot-capf ()
-    (when (eglot-managed-p)
-      (eglot-completion-at-point)))
+(defun my/eglot-capf ()
+  (when (eglot-managed-p)
+    (eglot-completion-at-point)))
 
-  (defun my/eglot-completion-setup ()
-    (setq-local completion-at-point-functions
-                (append
-                 (list
-                  (cape-capf-super
-                   #'yasnippet-capf
-                   #'my/eglot-capf))
-                 completion-at-point-functions)))
+(defun my/eglot-completion-setup ()
+  (setq-local completion-at-point-functions
+              (append
+               (list
+                (cape-capf-super
+                 #'yasnippet-capf
+                 #'my/eglot-capf))
+               completion-at-point-functions)))
 
-  (add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
+(add-hook 'eglot-managed-mode-hook #'my/eglot-completion-setup)
 
 ;; Color Inserter Setup
   (use-package my-insert-colors
@@ -980,6 +979,12 @@
                           (mapconcat #'shell-quote-argument expanded-files " ")))
           (user-error "No valid recent files found to search"))))
 
+(use-package pdf-tools
+:ensure t
+:config
+(pdf-tools-install :no-query)
+(setq-default pdf-view-display-size 'fit-page))
+
 (setq org-src-window-setup 'current-window)  ;; edits in the current window
 
 (require 'org-tempo)
@@ -1140,6 +1145,19 @@
 (setq org-refile-use-outline-path 'file)
 (setq org-outline-path-complete-in-steps nil)
 
+
+  (use-package org-habit-stats
+    :ensure t
+    :after org
+    :config
+    (setq org-habit-stats-future-days 0))
+  (setq org-extend-today-until 4)
+
+  (with-eval-after-load 'org
+  (let ((bg-color (face-attribute 'default :background)))
+    (custom-set-faces
+     `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
+
 (defun my/org-insert-image-from-clipboard ()
 "Save the latest image from the Wayland clipboard and insert it as an absolute file link at point."
 (interactive)
@@ -1190,6 +1208,31 @@
   (require 'org-roam-protocol)
   (setq org-link-frame-setup
 		'((file . find-file))))
+
+(use-package ghostel
+  :ensure t)
+
+(add-hook 'shell-mode-hook
+          (lambda ()
+            (shell-dirtrack-mode 1)))
+
+(setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
+
+(with-eval-after-load 'eshell
+  (defun my-newline-eshell-prompt ()
+    (concat
+     ;; Line 1: Full path with home directory abbreviated to ~
+     (abbreviate-file-name (eshell/pwd))
+     ;; Move to the next line
+     "\n"
+     ;; Line 2: Prompt symbol based on user privileges
+     (if (= (user-uid) 0) "# " "$ ")))
+
+  ;; Apply the multi-line prompt function
+  (setq eshell-prompt-function #'my-newline-eshell-prompt)
+  
+  ;; Update regexp to match the prompt on its own line
+  (setq eshell-prompt-regexp "^[#$] "))
 
 (setq-default cursor-type 'bar)
 
@@ -1547,6 +1590,8 @@
     "ec" #'capitalize-dwim
 
     ;; Code Actions
+    "cl" #'eglot
+    "cL" #'eglot-shutdown
     "cr" #'eglot-rename
     "cf" #'eglot-format
     "ca" #'eglot-code-actions
@@ -1568,6 +1613,7 @@
     "M-m f" #'follow-mode
     "M-m h" #'font-lock-mode
     "M-m l" #'my/toggle-line-numbers
+    "M-m w" #'toggle-truncate-lines
     "M-m m" #'my/toggle-mode-line
     "M-m M" #'menu-bar-mode
     "M-m z" #'my/zen-mode
@@ -1688,8 +1734,8 @@
 	"/s" #'replace-string
 	"//" #'isearch-forward
 	"/ M-/" #'isearch-backward
-  "/q" #'query-replace-regexp   ; Interactive replace with confirmation (M-%)
-"/Q" #'query-replace          ; Plain text query replace
+	"/q" #'query-replace-regexp   ; Interactive replace with confirmation (M-%)
+	"/Q" #'query-replace          ; Plain text query replace
 
     ;; Snippets
     "si"  #'yas-insert-snippet
@@ -1715,6 +1761,7 @@
 
     ;; editing macros
     ",dbl" #'delete-blank-lines
+    ",=" #'count-words
     )
   
   (general-define-key
@@ -1883,44 +1930,10 @@
  :defer t
  "i" 'evil-insert)
 
-(use-package ghostel
-        :ensure t)
+(my-local-leader-def
+    :keymaps 'eww-mode-map
+    :states '(normal visual motion emacs)
+    "tt" #'eww-toggle-colors)
 
-      (add-hook 'shell-mode-hook
-                (lambda ()
-                  (shell-dirtrack-mode 1)))
-
-      (setenv "BASH_ENV" (expand-file-name "~/.bashrc"))
-
-      (with-eval-after-load 'eshell
-        (defun my-newline-eshell-prompt ()
-          (concat
-           ;; Line 1: Full path with home directory abbreviated to ~
-           (abbreviate-file-name (eshell/pwd))
-           ;; Move to the next line
-           "\n"
-           ;; Line 2: Prompt symbol based on user privileges
-           (if (= (user-uid) 0) "# " "$ ")))
-
-        ;; Apply the multi-line prompt function
-        (setq eshell-prompt-function #'my-newline-eshell-prompt)
-        
-        ;; Update regexp to match the prompt on its own line
-        (setq eshell-prompt-regexp "^[#$] "))
-
-  ;; Suppress lexical-binding warnings for system-installed files
-  (setq warning-suppress-types '((files lexical-binding)))
-
-(use-package pdf-tools
-  :ensure t
-  :config
-  (pdf-tools-install :no-query)
-  (setq-default pdf-view-display-size 'fit-page))
-
-
-(use-package org-habit-stats
-:ensure t
-:after org
-:config
-(setq org-habit-stats-future-days 0))
-(setq org-extend-today-until 4)
+;; Suppress lexical-binding warnings for system-installed files
+(setq warning-suppress-types '((files lexical-binding)))
