@@ -14,13 +14,18 @@
 				 :html-background "Transparent" :html-scale 1.0
 				 :matchers ("begin" "$1" "$" "$$" "\\(" "\\[")))
  '(package-selected-packages
-   '(auto-dark cape consult-dir corfu eglot-jl eldoc-box embark-consult
-			   evil-collection evil-escape evil-nerd-commenter flash
-			   general ghostel gnuplot julia-repl julia-ts-mode laas
-			   magit marginalia markdown-mode minions nov orderless
+   '(2048-game auto-dark cape consult-dir corfu eglot-jl eldoc-box
+			   embark-consult evil-collection evil-escape
+			   evil-nerd-commenter flash general ghostel gnuplot
+			   julia-repl julia-ts-mode laas magit marginalia
+			   markdown-mode mines minions nov orderless
 			   org-habit-stats org-roam org-superstar pdf-tools
 			   speed-type toc-org transient treesit-auto vertico vundo
 			   with-editor yasnippet-capf yasnippet-snippets zoxide))
+ '(package-vc-selected-packages
+   '((au-themes :url "https://github.com/szymonwilczek/au-themes")
+	 (foxglove-themes :url
+					  "https://gitlab.com/vegasharmon/foxglove-themes")))
  '(preview-scale-function 1.0 t))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.

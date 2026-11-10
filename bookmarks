@@ -9,11 +9,11 @@
   (position . 1)
   (last-modified 27202 3317 173591 824000))
 ("agenda-phd"
- (filename . "~/org-agenda/phd-applications.org")
+ (filename . "~/org-agenda/phd.org")
  (front-context-string . "\n\n** Germany \n\n*")
  (rear-context-string . "2026-06-28 Sun]\n")
  (position . 45)
- (last-modified 27200 48880 521680 825000))
+ (last-modified 27376 24559 528654 605000))
 ("agenda-remember"
  (filename . "~/org-agenda/remember.org")
  (front-context-string . "* Emacs Editing ")
@@ -61,11 +61,11 @@
  (info-node . "Arithmetic Tutorial")
  (handler . Info-bookmark-jump))
 ("org-capture-last-stored"
- (filename . "~/org-notes/20261014150151-2600_bc.org")
- (front-context-string . "#+filetags: :his")
- (rear-context-string . "+title: 2600 BC\n")
- (position . 85)
- (last-modified 27343 19479 731615 192000))
+ (filename . "~/org-agenda/todo.org")
+ (front-context-string . "* TODO  KIT appl")
+ (rear-context-string)
+ (position . 15)
+ (last-modified 27376 8406 31184 670000))
 ("dired: .emacs.d"
  (filename . "~/.emacs.d/")
  (front-context-string . "custom-vars.el\n ")

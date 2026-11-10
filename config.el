@@ -443,6 +443,7 @@
             latex-mode-hook
 			nov-mode-hook) . (lambda ()
                                  (local-set-key (kbd "C-c d d") 'wordnet-overview)
+                                 (local-set-key (kbd "M-.") 'wordnet-overview)
 							   (local-set-key (kbd "C-c d D") 'wordnet-full))))
 
 (use-package my-incognito-mode
@@ -1152,11 +1153,6 @@
     :config
     (setq org-habit-stats-future-days 0))
   (setq org-extend-today-until 4)
-
-  (with-eval-after-load 'org
-  (let ((bg-color (face-attribute 'default :background)))
-    (custom-set-faces
-     `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
 
 (defun my/org-insert-image-from-clipboard ()
 "Save the latest image from the Wayland clipboard and insert it as an absolute file link at point."
@@ -1937,3 +1933,21 @@
 
 ;; Suppress lexical-binding warnings for system-installed files
 (setq warning-suppress-types '((files lexical-binding)))
+;; (with-eval-after-load 'org
+;;   (let ((bg-color (face-attribute 'default :background)))
+;;     (custom-set-faces
+;;      `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
+
+
+(require 'diary-lib)
+(add-hook 'diary-display-hook #'diary-fancy-display)
+
+
+(use-package ox-icalendar
+:ensure nil
+:custom
+(org-icalendar-include-todo t)
+(org-icalendar-use-scheduled '(event-if-todo todo-start))
+(org-icalendar-use-deadline '(event-if-todo todo-due))
+(org-icalendar-combined-agenda-file
+ (expand-file-name "~/org-agenda.ics")))
