@@ -32,6 +32,7 @@
   - [[#latex][Latex]]
 - [[#magit][Magit]]
 - [[#markdown][Markdown]]
+- [[#midnight-mode][Midnight Mode]]
 - [[#my-functions][My Functions]]
 - [[#pdf][PDF]]
 - [[#org-mode][ORG MODE]]
@@ -39,7 +40,7 @@
   - [[#org-tempo][Org tempo]]
   - [[#table-of-contents][Table of contents]]
   - [[#general-org-mode-settings][General org mode settings]]
-- [[#shell][Shell]]
+- [[#ghostel][Ghostel]]
 - [[#sane-defaults][Sane Defaults]]
   - [[#fixing-emacs-wierdness][Fixing emacs wierdness]]
   - [[#emacs-qol-settings][Emacs QOL settings]]
@@ -942,6 +943,34 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 
 #+end_src
 
+* Midnight Mode
+#+begin_src emacs-lisp
+  (use-package midnight
+  :ensure nil
+  :config
+  (setq clean-buffer-list-kill-regexps
+        '("\\`\\*Man "
+          "\\`\\*compilation"
+          "\\`\\*Help"
+          "\\`\\*Calc"
+          "\\`\\*Warnings\\*"
+          "\\`\\*Backtrace\\*"
+          "\\`\\*Calc Trail\\*"
+          "\\`\\*Calculator\\*"
+          "\\`\\*Async Shell"
+          "\\`\\*Async-native-compile"
+          "\\`\\*info\\*"
+          "\\`\\*Calendar\\*"
+          "\\`\\*Gnuplot"
+          "\\`\\*Native-compile"
+          "\\`\\*Ediff Registry\\*"
+          "\\`magit:"
+          "\\`magit-revision:"
+          "\\`magit-diff:"
+          "\\`magit-process:"))
+  (midnight-mode 1))
+
+#+end_src
 * My Functions
 
 #+begin_src emacs-lisp
@@ -1153,11 +1182,12 @@ Provides actions on selection targets in buffer/minibuffer (kind of like a right
 
 * PDF
 #+begin_src emacs-lisp
-    (use-package pdf-tools
-    :ensure t
-    :config
-    (pdf-tools-install :no-query)
-    (setq-default pdf-view-display-size 'fit-page))
+  (use-package pdf-tools
+  :ensure t
+  :defer t
+  :config
+  (pdf-tools-install :no-query)
+  (setq-default pdf-view-display-size 'fit-page))
 #+end_src
 * ORG MODE
 ** Org mode source block
@@ -1428,9 +1458,10 @@ here we set the following
   		'((file . find-file))))
 #+end_src
 
-* Shell
+* Ghostel
 #+begin_src emacs-lisp
-    (use-package ghostel
+  (use-package ghostel
+    :defer t
     :ensure t)
 
   (add-hook 'shell-mode-hook
@@ -1874,8 +1905,8 @@ Using Emacs-Style keybindings
     
     (my-leader-def
       ;; Core
-      "!" 'shell-command
-      "1" 'shell-command
+      "!" 'shell-command-on-region
+      "1" 'async-shell-command
       "2" 'eshell
       "@" 'eshell-command
       "3" 'ghostel
@@ -2306,17 +2337,26 @@ Using Emacs-Style keybindings
   ;;      `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
 
 
-  (require 'diary-lib)
-  (add-hook 'diary-display-hook #'diary-fancy-display)
+  ;; (require 'diary-lib)
+  ;; (add-hook 'diary-display-hook #'diary-fancy-display)
+
+  (use-package diary-lib
+    :ensure nil
+    :defer t
+    :custom
+    (add-hook 'diary-display-hook #'diary-fancy-display))
 
 
   (use-package ox-icalendar
-  :ensure nil
-  :custom
-  (org-icalendar-include-todo t)
-  (org-icalendar-use-scheduled '(event-if-todo todo-start))
-  (org-icalendar-use-deadline '(event-if-todo todo-due))
-  (org-icalendar-combined-agenda-file
-   (expand-file-name "~/org-agenda.ics")))
+    :ensure nil
+    :defer t
+    :custom
+    (org-icalendar-include-todo t)
+    (org-icalendar-use-scheduled '(event-if-todo todo-start))
+    (org-icalendar-use-deadline '(event-if-todo todo-due))
+    (org-icalendar-combined-agenda-file
+     (expand-file-name "~/org-agenda.ics")))
+
+  
 
 #+end_src

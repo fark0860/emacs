@@ -777,6 +777,31 @@
   :defer t
   :ensure t)
 
+(use-package midnight
+:ensure nil
+:config
+(setq clean-buffer-list-kill-regexps
+      '("\\`\\*Man "
+        "\\`\\*compilation"
+        "\\`\\*Help"
+        "\\`\\*Calc"
+        "\\`\\*Warnings\\*"
+        "\\`\\*Backtrace\\*"
+        "\\`\\*Calc Trail\\*"
+        "\\`\\*Calculator\\*"
+        "\\`\\*Async Shell"
+        "\\`\\*Async-native-compile"
+        "\\`\\*info\\*"
+        "\\`\\*Calendar\\*"
+        "\\`\\*Gnuplot"
+        "\\`\\*Native-compile"
+        "\\`\\*Ediff Registry\\*"
+        "\\`magit:"
+        "\\`magit-revision:"
+        "\\`magit-diff:"
+        "\\`magit-process:"))
+(midnight-mode 1))
+
 ;;; My Functions for Emacs  
           ;;;; Mode Line Toggle
     (defvar-local my--saved-mode-line-format mode-line-format
@@ -982,6 +1007,7 @@
 
 (use-package pdf-tools
 :ensure t
+:defer t
 :config
 (pdf-tools-install :no-query)
 (setq-default pdf-view-display-size 'fit-page))
@@ -1206,6 +1232,7 @@
 		'((file . find-file))))
 
 (use-package ghostel
+  :defer t
   :ensure t)
 
 (add-hook 'shell-mode-hook
@@ -1512,8 +1539,8 @@
   
   (my-leader-def
     ;; Core
-    "!" 'shell-command
-    "1" 'shell-command
+    "!" 'shell-command-on-region
+    "1" 'async-shell-command
     "2" 'eshell
     "@" 'eshell-command
     "3" 'ghostel
@@ -1939,15 +1966,22 @@
 ;;      `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
 
 
-(require 'diary-lib)
-(add-hook 'diary-display-hook #'diary-fancy-display)
+;; (require 'diary-lib)
+;; (add-hook 'diary-display-hook #'diary-fancy-display)
+
+(use-package diary-lib
+  :ensure nil
+  :defer t
+  :custom
+  (add-hook 'diary-display-hook #'diary-fancy-display))
 
 
 (use-package ox-icalendar
-:ensure nil
-:custom
-(org-icalendar-include-todo t)
-(org-icalendar-use-scheduled '(event-if-todo todo-start))
-(org-icalendar-use-deadline '(event-if-todo todo-due))
-(org-icalendar-combined-agenda-file
- (expand-file-name "~/org-agenda.ics")))
+  :ensure nil
+  :defer t
+  :custom
+  (org-icalendar-include-todo t)
+  (org-icalendar-use-scheduled '(event-if-todo todo-start))
+  (org-icalendar-use-deadline '(event-if-todo todo-due))
+  (org-icalendar-combined-agenda-file
+   (expand-file-name "~/org-agenda.ics")))
