@@ -1959,29 +1959,37 @@
     "tt" #'eww-toggle-colors)
 
 ;; Suppress lexical-binding warnings for system-installed files
-(setq warning-suppress-types '((files lexical-binding)))
-;; (with-eval-after-load 'org
-;;   (let ((bg-color (face-attribute 'default :background)))
-;;     (custom-set-faces
-;;      `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
+  (setq warning-suppress-types '((files lexical-binding)))
+  ;; (with-eval-after-load 'org
+  ;;   (let ((bg-color (face-attribute 'default :background)))
+  ;;     (custom-set-faces
+  ;;      `(org-tag ((t (:foreground ,bg-color :background ,bg-color :weight normal)))))))
 
 
-;; (require 'diary-lib)
-;; (add-hook 'diary-display-hook #'diary-fancy-display)
+  ;; (require 'diary-lib)
+  ;; (add-hook 'diary-display-hook #'diary-fancy-display)
 
-(use-package diary-lib
-  :ensure nil
-  :defer t
-  :custom
-  (add-hook 'diary-display-hook #'diary-fancy-display))
+  (use-package diary-lib
+    :ensure nil
+    :defer t
+    :custom
+    (add-hook 'diary-display-hook #'diary-fancy-display))
 
 
-(use-package ox-icalendar
-  :ensure nil
-  :defer t
-  :custom
-  (org-icalendar-include-todo t)
-  (org-icalendar-use-scheduled '(event-if-todo todo-start))
-  (org-icalendar-use-deadline '(event-if-todo todo-due))
-  (org-icalendar-combined-agenda-file
-   (expand-file-name "~/org-agenda.ics")))
+  (use-package ox-icalendar
+    :ensure nil
+    :defer t
+    :custom
+    (org-icalendar-include-todo t)
+    (org-icalendar-use-scheduled '(event-if-todo todo-start))
+    (org-icalendar-use-deadline '(event-if-todo todo-due))
+    (org-icalendar-combined-agenda-file
+     (expand-file-name "~/org-agenda.ics")))
+
+ ;; Set Hindi/Devanagari font to NewComputerModern 10 Devanagari
+(set-fontset-font t 'devanagari
+                  (font-spec :family "NewComputerModern 10 Devanagari")
+                  nil 'prepend)
+
+;; Optional: Adjust Hindi font size relative to your English font (1.0 = 100%)
+(add-to-list 'face-font-rescale-alist '("NewComputerModern 10 Devanagari" . 1.15))

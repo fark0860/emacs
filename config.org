@@ -2357,6 +2357,13 @@ Using Emacs-Style keybindings
     (org-icalendar-combined-agenda-file
      (expand-file-name "~/org-agenda.ics")))
 
-  
+ ;; Set Hindi/Devanagari font to NewComputerModern 10 Devanagari
+(set-fontset-font t 'devanagari
+                  (font-spec :family "NewComputerModern 10 Devanagari")
+                  nil 'prepend)
+
+;; Optional: Adjust Hindi font size relative to your English font (1.0 = 100%)
+(add-to-list 'face-font-rescale-alist '("NewComputerModern 10 Devanagari" . 1.15))
+ 
 
 #+end_src
