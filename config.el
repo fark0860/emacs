@@ -1798,7 +1798,7 @@
      (interactive)
      (if (and (fboundp 'eldoc-box--frame-visible-p)
               (eldoc-box--frame-visible-p))
-         (eldoc-box-scroll-up 4)
+		 (eldoc-box-scroll-up 4)
        (evil-next-visual-line)))
    
    "C-k"
